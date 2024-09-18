@@ -1,0 +1,1646 @@
+{
+  "version": "3.0.0",
+  "form": {
+    "name": "Manage Profile",
+    "description": null,
+    "messages": {
+      "custom": {},
+      "errors": {}
+    },
+    "languages": {
+      "default": null,
+      "primary": "en"
+    },
+    "translations": {},
+    "start": {
+      "nextNode": "flow_Oo53",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "hiddenFields": []
+    },
+    "nodes": [
+      {
+        "id": "step_lXyG",
+        "type": "STEP",
+        "alias": "Menu",
+        "config": {
+          "nextNode": "$ending",
+          "components": [
+            {
+              "id": "rich_text_OY3c",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_KQP8",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Update your details",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "step_CaCd"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_ZtxK",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Manage authentication factors",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "flow_Hv50"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_UIAN",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Manage active devices",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "flow_dyj9"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_lOjh",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Change email",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "step_0Cqc"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_3eAu",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Change phone number",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "step_DbIm"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_5dkP",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Change password",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "flow_yNoK"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_hxzy",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "next_button_kVnb",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Return to Website"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 500,
+          "y": 0
+        }
+      },
+      {
+        "id": "step_CaCd",
+        "type": "STEP",
+        "alias": "Profile",
+        "config": {
+          "nextNode": "flow_yeor",
+          "components": [
+            {
+              "id": "rich_text_4cyY",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Profile data</h2>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "firstName",
+              "hint": null,
+              "type": "TEXT",
+              "label": "First Name",
+              "config": {
+                "maxLength": null,
+                "minLength": null,
+                "multiline": false,
+                "placeholder": null,
+                "defaultValue": "{{context.user.user_metadata.givenName}}"
+              },
+              "category": "FIELD",
+              "required": false,
+              "transient": false
+            },
+            {
+              "id": "surname",
+              "hint": null,
+              "type": "TEXT",
+              "label": "Surname",
+              "config": {
+                "maxLength": null,
+                "minLength": null,
+                "multiline": false,
+                "placeholder": null,
+                "defaultValue": "{{context.user.user_metadata.surname}}"
+              },
+              "category": "FIELD",
+              "required": false,
+              "transient": false
+            },
+            {
+              "id": "jump_button_juI0",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Save"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_TOOX",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_S0WW",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "next_button_5p6O",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Return to Website",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 1205,
+          "y": 306
+        }
+      },
+      {
+        "id": "step_xKub",
+        "type": "STEP",
+        "alias": "Sessions",
+        "config": {
+          "nextNode": "flow_x1hb",
+          "components": [
+            {
+              "id": "rich_text_mTiL",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Your active devices</h2>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "activeDevices",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": "Active Devices",
+              "config": {
+                "css": null,
+                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction listSessions(context) {\n\n  const input = document.createElement('div');\n  \n  \n  function addRadios(context, input) {\n  \n          input.innerHTML = '';\n      const sessions = context.custom.getParams().sessions;\n      const current_session = context.custom.getParams().current_session;\n  \t\tconsole.log(sessions);\n  \t\tvar parser = new UAParser();\n    sessions.forEach(function (i) {\n      parser.setUA(i.device.last_user_agent);\n    var result = parser.getResult();\n      \n        var option = document.createElement('div');\n  option.classList.add('af-choiceField-option');\n      var radio = document.createElement('input');\n      radio.classList.add('af-choiceFieldOption-checkable');\n      radio.classList.add('af-choiceFieldOption-radio');\n      radio.setAttribute('type', 'radio');\n      radio.setAttribute('name', \"sessionList\");\n      radio.setAttribute('id', i.id);\n      radio.setAttribute('value', i.id);\n      if (current_session == i.id) {    \n      \tradio.setAttribute('disabled', \"true\");\n      }\n      option.appendChild(radio);\n      \n      \n      var label = document.createElement('label');\n      label.setAttribute('for', i.id);\n      label.classList.add('af-field-label');\n      label.classList.add('af-choiceFieldOption-label');\n      var labelSpan = document.createElement('span');\n      labelSpan.classList.add('af-choiceFieldOption-text');\n      \n      labelSpan.innerText=result.device.model + \" \" +result.browser.name + \", IP: \" + i.device.last_ip + \", Updated: \" + i.updated_at;\n      if (current_session == i.id) {    \n      \tlabelSpan.innerText=labelSpan.innerText + \" (current)\";\n      }\n      label.appendChild(labelSpan);\n      option.appendChild(label);\n      option.insertBefore(radio,label);\n      input.appendChild(option);\n      \n    });\n  }\n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n\t\t\taddRadios(context, input);\n      return input;\n    },\n    \n        unblock() {\n      console.log(\"in unblock\");\n      if(document.querySelector('div[class*=\"af-scenarioMessage-error\"][style*=\"block\"]')) {\n      \tvar text = document.querySelector('div[class*=\"af-scenarioMessage-error\"][style*=\"block\"]').innerText;\n        console.log(text);\n        text = text.substring(25)\n        document.getElementById(text).parentElement.remove()\n\n      }\n    },\n    \n    update() {\n       addRadios(context, input);\n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n    getScripts() {\n  return ['https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js'];\n},\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      var radios = document.getElementsByName('sessionList');\n\nfor (var i = 0, length = radios.length; i < length; i++) {\n  console.log(radios[i].value);\n  console.log(radios[i].checked);\n  if (radios[i].checked) {\n    console.log(radios[i].value);\n    // do whatever you want with the checked radio\n          return {\n        value: radios[i].value\n      };\n\n    // only one radio can be logically checked, don't check the rest\n    break;\n  }\n}\n\n    },\n  };\n}",
+                "params": {
+                  "sessions": "{{vars.sessions}}",
+                  "current_session": "{{vars.current_session}}"
+                },
+                "schema": {}
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "jump_button_Bol1",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Revoke session"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_AKtK",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_rNeI",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "next_button_N96R",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Return to Website",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 1228,
+          "y": 915
+        }
+      },
+      {
+        "id": "step_aSnX",
+        "type": "STEP",
+        "alias": "MFA Factors",
+        "config": {
+          "nextNode": "flow_dIKK",
+          "components": [
+            {
+              "id": "rich_text_50Kf",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Your authentication factors</h2>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "authFactors",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": "Authentication Factors",
+              "config": {
+                "css": null,
+                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction listFactors(context) {\n\n  const input = document.createElement('div');\n  \n  function addRadios(context, input) {\n  \n  \tinput.innerHTML='';\n      const factors = context.custom.getParams().factors;\n      \n  \t\tconsole.log(factors);\n    factors.forEach(function (i) {\n      \n       var option = document.createElement('div');\n  \t\toption.classList.add('af-choiceField-option');\n      var radio = document.createElement('input');\n      radio.classList.add('af-choiceFieldOption-checkable');\n      radio.classList.add('af-choiceFieldOption-radio');\n      radio.setAttribute('type', 'radio');\n      radio.setAttribute('name', \"authList\");\n      radio.setAttribute('id', i.id);\n      radio.setAttribute('value', i.id);\n      option.appendChild(radio);\n      \n      \n      var label = document.createElement('label');\n      label.setAttribute('for', i.id);\n      label.classList.add('af-field-label');\n      label.classList.add('af-choiceFieldOption-label');\n      var labelSpan = document.createElement('span');\n      labelSpan.classList.add('af-choiceFieldOption-text');\n      \n      if (i.type == \"phone\") {\n        labelSpan.innerText=i.type + \", \" + i.phone_number\n      } else if (i.type == \"webauthn-platform\") {\n        labelSpan.innerText=i.type + \", \" + i.name\n      } else if (i.type == \"passkey\") {\n        labelSpan.innerText=i.type + \", \" + i.user_agent\n      } else {\n          labelSpan.innerText=i.type\n      }\n      if(i.last_auth_at) {\n      \tlabelSpan.innerText = labelSpan.innerText + \", Last Used: \" + i.last_auth_at\n      }\n      \n      label.appendChild(labelSpan);\n      option.appendChild(label);\n      option.insertBefore(radio,label);\n      input.appendChild(option);\n      \n    });\n  }\n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n      addRadios(context, input);\n      console.log(\"in init\");\n      return input;\n    },\n    \n    unblock() {\n      console.log(\"in unblock\");\n      if(document.querySelector('div[class*=\"af-scenarioMessage-error\"][style*=\"block\"]')) {\n      \tvar text = document.querySelector('div[class*=\"af-scenarioMessage-error\"][style*=\"block\"]').innerText;\n        console.log(text);\n        text = text.substring(24)\n        document.getElementById(text).parentElement.remove()\n\n      }\n    },\n    \n    \n    update() {\n      addRadios(context, input);\n      console.log(\"in update\");\n      \n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      var radios = document.getElementsByName('authList');\n\nfor (var i = 0, length = radios.length; i < length; i++) {\n  console.log(radios[i].value);\n  console.log(radios[i].checked);\n  if (radios[i].checked) {\n    console.log(radios[i].value);\n    // do whatever you want with the checked radio\n          return {\n        value: radios[i].value\n      };\n\n    // only one radio can be logically checked, don't check the rest\n    break;\n  }\n}\n\n    },\n  };\n}",
+                "params": {
+                  "factors": "{{vars.factors}}"
+                },
+                "schema": {}
+              },
+              "category": "FIELD",
+              "required": false,
+              "transient": false
+            },
+            {
+              "id": "jump_button_EnKl",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Remove factor"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_qMhF",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Add new factor",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "flow_YIDS"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_BrS8",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_ednU",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "next_button_IPXo",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Return to Website",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 1205,
+          "y": 1726
+        }
+      },
+      {
+        "id": "flow_dyj9",
+        "type": "FLOW",
+        "alias": "GetSessions",
+        "config": {
+          "flowId": "#FLOW-1#",
+          "nextNode": "step_xKub"
+        },
+        "coordinates": {
+          "x": 688,
+          "y": 782
+        }
+      },
+      {
+        "id": "flow_Oo53",
+        "type": "FLOW",
+        "alias": "New flow",
+        "config": {
+          "flowId": "#FLOW-2#",
+          "nextNode": "step_lXyG"
+        },
+        "coordinates": {
+          "x": 138,
+          "y": 312
+        }
+      },
+      {
+        "id": "flow_Hv50",
+        "type": "FLOW",
+        "alias": "GetAuthFactors",
+        "config": {
+          "flowId": "#FLOW-3#",
+          "nextNode": "step_aSnX"
+        },
+        "coordinates": {
+          "x": 596,
+          "y": 1252
+        }
+      },
+      {
+        "id": "step_0Cqc",
+        "type": "STEP",
+        "alias": "Change email",
+        "config": {
+          "nextNode": "flow_XHP0",
+          "components": [
+            {
+              "id": "rich_text_Itgo",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Change email</h2><p>Current email is {{context.user.email}}</p>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "newemail",
+              "hint": null,
+              "type": "EMAIL",
+              "label": "New Email address",
+              "config": {
+                "placeholder": null,
+                "defaultValue": null
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "next_button_dglj",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Continue"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_1nks",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -676,
+          "y": 928
+        }
+      },
+      {
+        "id": "step_p2eF",
+        "type": "STEP",
+        "alias": "New step",
+        "config": {
+          "nextNode": "flow_WFCG",
+          "components": [
+            {
+              "id": "rich_text_UW5a",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Verify new email</h2><p>Please provide the OTP sent to your new email address ({{fields.newemail}})</p>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "otp",
+              "hint": null,
+              "type": "NUMBER",
+              "label": "OTP",
+              "config": {
+                "format": "DECIMAL",
+                "maxValue": null,
+                "minValue": null,
+                "placeholder": null,
+                "defaultValue": null
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "next_button_PI8o",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Continue"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_NWS2",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -126,
+          "y": 1428
+        }
+      },
+      {
+        "id": "flow_XHP0",
+        "type": "FLOW",
+        "alias": "SendOTP",
+        "config": {
+          "flowId": "#FLOW-4#",
+          "nextNode": "step_p2eF"
+        },
+        "coordinates": {
+          "x": -555,
+          "y": 1543
+        }
+      },
+      {
+        "id": "flow_WFCG",
+        "type": "FLOW",
+        "alias": "VerifyOTP",
+        "config": {
+          "flowId": "#FLOW-5#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": 435,
+          "y": 1627
+        }
+      },
+      {
+        "id": "step_DbIm",
+        "type": "STEP",
+        "alias": "Change phone",
+        "config": {
+          "nextNode": "flow_7jBh",
+          "components": [
+            {
+              "id": "rich_text_eYe8",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Change phone number</h2><p>Current phone number is {{context.user.phone_number}}</p>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "newphone",
+              "hint": null,
+              "type": "TEL",
+              "label": "Phone",
+              "config": {
+                "defaultCC": null,
+                "maxLength": null,
+                "minLength": null,
+                "placeholder": null,
+                "defaultValue": null,
+                "translations": {
+                  "filterPlaceholder": null
+                },
+                "countryPicker": true,
+                "allowedCountries": [],
+                "forbiddenCountries": []
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "next_button_xSmj",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Continue"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_K7E5",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -833,
+          "y": -3
+        }
+      },
+      {
+        "id": "flow_7jBh",
+        "type": "FLOW",
+        "alias": "SendOTPPhone",
+        "config": {
+          "flowId": "#FLOW-6#",
+          "nextNode": "step_EQkp"
+        },
+        "coordinates": {
+          "x": -1435,
+          "y": 153
+        }
+      },
+      {
+        "id": "step_EQkp",
+        "type": "STEP",
+        "alias": "New step",
+        "config": {
+          "nextNode": "flow_A5NO",
+          "components": [
+            {
+              "id": "rich_text_vGId",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Verify new phone number</h2><p>Please provide the OTP sent to your new phone number ({{fields.newphone}})</p>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "otpphone",
+              "hint": null,
+              "type": "NUMBER",
+              "label": "OTP",
+              "config": {
+                "format": "DECIMAL",
+                "maxValue": null,
+                "minValue": null,
+                "placeholder": null,
+                "defaultValue": null
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "next_button_pgsl",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Continue"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_lmBL",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -1642,
+          "y": 554
+        }
+      },
+      {
+        "id": "flow_A5NO",
+        "type": "FLOW",
+        "alias": "VerifyOTPPhone",
+        "config": {
+          "flowId": "#FLOW-7#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": -1509,
+          "y": 1254
+        }
+      },
+      {
+        "id": "step_ozWb",
+        "type": "STEP",
+        "alias": "Change Password",
+        "config": {
+          "nextNode": "$ending",
+          "components": [
+            {
+              "id": "GoPwTicket",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": null,
+              "config": {
+                "css": null,
+                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction GoPwTicket(context) {\n\n  const input = document.createElement('div');\n\n\n  \n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n     window.location.replace(context.custom.getParams().pwticket); \n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      return {\n        value: input.value\n      };\n    },\n  };\n}",
+                "params": {
+                  "pwticket": "{{vars.pwticket}}"
+                },
+                "schema": {}
+              },
+              "category": "FIELD",
+              "required": false,
+              "transient": false
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 1107,
+          "y": -480
+        }
+      },
+      {
+        "id": "flow_yNoK",
+        "type": "FLOW",
+        "alias": "GetPasswordChangeTicket",
+        "config": {
+          "flowId": "#FLOW-8#",
+          "nextNode": "step_ozWb"
+        },
+        "coordinates": {
+          "x": 582,
+          "y": -299
+        }
+      },
+      {
+        "id": "step_GZhl",
+        "type": "STEP",
+        "alias": "Enroll MFA",
+        "config": {
+          "nextNode": "$ending",
+          "components": [
+            {
+              "id": "GoMFATicket",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": null,
+              "config": {
+                "css": null,
+                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction GoMFATicket(context) {\n\n  const input = document.createElement('div');\n\n\n  \n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n     window.open(context.custom.getParams().mfaticket, '_blank').focus(); \n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      return {\n        value: input.value\n      };\n    },\n  };\n}",
+                "params": {
+                  "mfaticket": "{{vars.mfaticket}}"
+                },
+                "schema": {}
+              },
+              "category": "FIELD",
+              "required": false,
+              "transient": false
+            },
+            {
+              "id": "previous_button_ArIB",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_8Ugd",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_NvMs",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Return to Website",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 2402,
+          "y": 1309
+        }
+      },
+      {
+        "id": "flow_YIDS",
+        "type": "FLOW",
+        "alias": "GetMFATicket",
+        "config": {
+          "flowId": "#FLOW-9#",
+          "nextNode": "step_GZhl"
+        },
+        "coordinates": {
+          "x": 1898,
+          "y": 1505
+        }
+      },
+      {
+        "id": "flow_yeor",
+        "type": "FLOW",
+        "alias": "updateUser",
+        "config": {
+          "flowId": "#FLOW-10#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": 2389,
+          "y": 628
+        }
+      },
+      {
+        "id": "flow_x1hb",
+        "type": "FLOW",
+        "alias": "RevokeSession",
+        "config": {
+          "flowId": "#FLOW-11#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": 1962,
+          "y": 1051
+        }
+      },
+      {
+        "id": "flow_dIKK",
+        "type": "FLOW",
+        "alias": "RemoveFactor",
+        "config": {
+          "flowId": "#FLOW-12#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": 1951,
+          "y": 2086
+        }
+      }
+    ],
+    "ending": {
+      "content": null,
+      "redirection": null,
+      "callback": null,
+      "afterSubmit": {
+        "email": null,
+        "flowId": null
+      },
+      "coordinates": {
+        "x": 2025,
+        "y": 119
+      },
+      "resumeFlow": true
+    },
+    "social": [],
+    "style": {
+      "css": null,
+      "theme": "ROUND",
+      "version": "MODERN"
+    },
+    "tags": []
+  },
+  "flows": {
+    "#FLOW-1#": {
+      "name": "GetSessions",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetSessions",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/sessions",
+            "body": null,
+            "type": "JSON",
+            "basic": null,
+            "method": "GET",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "SetSessions",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "sessions": "{{actions.GetSessions.body.sessions}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-2#": {
+      "name": "GetAccessToken",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetToken",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/oauth/token",
+            "body": {
+              "audience": "{{vars.auth0_domain}}/api/v2/",
+              "client_id": "{{vars.client_id}}",
+              "grant_type": "client_credentials",
+              "client_secret": "{{vars.client_secret}}"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {},
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "SetToken",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "mgmt_token": "{{actions.GetToken.body.access_token}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-3#": {
+      "name": "GetAuthFactors",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetAuthFactors",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/authentication-methods",
+            "body": null,
+            "type": "JSON",
+            "basic": null,
+            "method": "GET",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "SetAuthFactors",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "factors": "{{actions.GetAuthFactors.body}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-4#": {
+      "name": "Generate OTP & send email",
+      "description": null,
+      "actions": [
+        {
+          "id": "generate_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "GENERATE_CODE",
+          "params": {
+            "length": 6,
+            "reference": "{{fields.newemail}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "sendtorequestbin",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "https://eoq93i7z3xldmn5.m.pipedream.net",
+            "body": {
+              "otp": "{{actions.generate_otp.code}}"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {},
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-5#": {
+      "name": "Verify OTP & Update user",
+      "description": null,
+      "actions": [
+        {
+          "id": "verify_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "VERIFY_CODE",
+          "params": {
+            "code": "{{fields.otp}}",
+            "reference": "{{fields.newemail}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_mnXT",
+          "type": "FLOW",
+          "alias": "Is it valid?",
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "update_user_IPZP",
+                "type": "AUTH0",
+                "alias": null,
+                "notes": null,
+                "action": "UPDATE_USER",
+                "params": {
+                  "userId": "{{context.user.user_id}}",
+                  "changes": {
+                    "email": "{{fields.newemail}}",
+                    "email_verified": true
+                  },
+                  "connectionId": "#CONN-1#"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.verify_otp.valid}}",
+                    true
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_Whan",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "عذرًا، رمز التحقق الخاص بك غير صالح. من فضلك قم بمراجعته وحاول مرة أخرى."
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-7#": {
+      "name": "Verify phone OTP & Update user",
+      "description": null,
+      "actions": [
+        {
+          "id": "verify_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "VERIFY_CODE",
+          "params": {
+            "code": "{{fields.otpphone}}",
+            "reference": "{{fields.newphone.number}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_mnXT",
+          "type": "FLOW",
+          "alias": "Is it valid?",
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "update_user_HlyR",
+                "type": "AUTH0",
+                "alias": null,
+                "notes": null,
+                "action": "UPDATE_USER",
+                "params": {
+                  "userId": "{{context.user.user_id}}",
+                  "changes": {
+                    "phone_number": "{{fields.newphone}}",
+                    "phone_verified": true
+                  },
+                  "connectionId": "#CONN-1#"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.verify_otp.valid}}",
+                    true
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "showErrorMessage_Whan",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "We're sorry, your verification code is not valid. Please, review it and try it again."
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-8#": {
+      "name": "GetPasswordChangeTicket",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetPasswordTicket",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/tickets/password-change",
+            "body": {
+              "ttl_sec": 0,
+              "user_id": "{{context.user.user_id}}",
+              "client_id": "CUoPZqhRVJuhRFBURD8KGoHt7yL3UAmv"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "SetPwTicket",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "pwticket": "{{actions.GetPasswordTicket.body.ticket}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-6#": {
+      "name": "Check phone & generate OTP",
+      "description": null,
+      "actions": [
+        {
+          "id": "generate_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "GENERATE_CODE",
+          "params": {
+            "length": 6,
+            "reference": "{{fields.newphone.number}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "sendphoneotp",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "https://eom3uh94bh3zfc8.m.pipedream.net",
+            "body": {
+              "otp": "{{actions.generate_otp.code}}"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {},
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-9#": {
+      "name": "GetMFATicket",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetMFATicket",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/guardian/enrollments/ticket",
+            "body": {
+              "user_id": "{{context.user.user_id}}",
+              "send_mail": false,
+              "allow_multiple_enrollments": true
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "SetMFATicket",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-11#": {
+      "name": "RevokeSession",
+      "description": null,
+      "actions": [
+        {
+          "id": "revokeSession",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/sessions/{{fields.activeDevices.value}}",
+            "body": null,
+            "type": "JSON",
+            "basic": null,
+            "method": "DELETE",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "GetSessions",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/sessions",
+            "body": null,
+            "type": "JSON",
+            "basic": null,
+            "method": "GET",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "storeSessions",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "sessions": "{{actions.GetSessions.body.sessions}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "show_error_message_5cIq",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "ERROR_MESSAGE",
+          "params": {
+            "message": "Success: Revoked session {{fields.activeDevices.value}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-10#": {
+      "name": "updateUser",
+      "description": null,
+      "actions": [
+        {
+          "id": "updateUser",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "UPDATE_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "changes": {
+              "user_metadata": {
+                "surname": "{{fields.surname}}",
+                "givenName": "{{fields.firstName}}"
+              }
+            },
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "detailsUpdated",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "ERROR_MESSAGE",
+          "params": {
+            "message": "Success: your details are updated"
+          },
+          "maskOutput": false,
+          "allowFailure": true
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-12#": {
+      "name": "RemoveFactor",
+      "description": null,
+      "actions": [
+        {
+          "id": "revokeSession",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/authentication-methods/{{fields.authFactors.value}}",
+            "body": null,
+            "type": "JSON",
+            "basic": null,
+            "method": "DELETE",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "GetSessions",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/authentication-methods",
+            "body": null,
+            "type": "JSON",
+            "basic": null,
+            "method": "GET",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "storeFactors",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "factors": "{{actions.GetAuthFactors.body}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "show_error_message_5cIq",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "ERROR_MESSAGE",
+          "params": {
+            "message": "Success: Removed factor {{fields.authFactors.value}}"
+          },
+          "maskOutput": false,
+          "allowFailure": true
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    }
+  },
+  "connections": {
+    "#CONN-1#": {
+      "id": "ac_epYn2ZNUr5yCkPYTUszBPp",
+      "appId": "AUTH0",
+      "name": "Auth0M2M"
+    }
+  }
+}
