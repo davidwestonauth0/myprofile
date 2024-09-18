@@ -638,7 +638,7 @@
               "id": "rich_text_vGId",
               "type": "RICH_TEXT",
               "config": {
-                "content": "<h1>Manage your account</h1><h2>Verify new phone number</h2><p>Please provide the OTP sent to your new phone number ({{fields.newphone}})</p>"
+                "content": "<h1>Manage your account</h1><h2>Verify new phone number</h2><p>Please provide the OTP sent to your new phone number ({{fields.newphone.number}})</p>"
               },
               "category": "BLOCK"
             },
@@ -1032,57 +1032,6 @@
         "rateLimits": []
       }
     },
-    "#FLOW-4#": {
-      "name": "Generate OTP & send email",
-      "description": null,
-      "actions": [
-        {
-          "id": "generate_otp",
-          "type": "OTP",
-          "alias": null,
-          "notes": null,
-          "action": "GENERATE_CODE",
-          "params": {
-            "length": 6,
-            "reference": "{{fields.newemail}}"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "sendtorequestbin",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "https://eoq93i7z3xldmn5.m.pipedream.net",
-            "body": {
-              "otp": "{{actions.generate_otp.code}}"
-            },
-            "type": "JSON",
-            "basic": null,
-            "method": "POST",
-            "params": {},
-            "headers": {},
-            "acceptNOK": false,
-            "connectionId": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
     "#FLOW-5#": {
       "name": "Verify OTP & Update user",
       "description": null,
@@ -1202,7 +1151,7 @@
                 "params": {
                   "userId": "{{context.user.user_id}}",
                   "changes": {
-                    "phone_number": "{{fields.newphone}}",
+                    "phone_number": "{{fields.newphone.number}}",
                     "phone_verified": true
                   },
                   "connectionId": "#CONN-1#"
@@ -1237,6 +1186,57 @@
                 "allowFailure": false
               }
             ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-6#": {
+      "name": "Check phone & generate OTP",
+      "description": null,
+      "actions": [
+        {
+          "id": "generate_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "GENERATE_CODE",
+          "params": {
+            "length": 6,
+            "reference": "{{fields.newphone.number}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "sendphoneotp",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "https://eom3uh94bh3zfc8.m.pipedream.net",
+            "body": {
+              "otp": "{{actions.generate_otp.code}}"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {},
+            "acceptNOK": false,
+            "connectionId": null
           },
           "maskOutput": false,
           "allowFailure": false
@@ -1293,57 +1293,6 @@
             "data": {
               "pwticket": "{{actions.GetPasswordTicket.body.ticket}}"
             }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-6#": {
-      "name": "Check phone & generate OTP",
-      "description": null,
-      "actions": [
-        {
-          "id": "generate_otp",
-          "type": "OTP",
-          "alias": null,
-          "notes": null,
-          "action": "GENERATE_CODE",
-          "params": {
-            "length": 6,
-            "reference": "{{fields.newphone.number}}"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "sendphoneotp",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "https://eom3uh94bh3zfc8.m.pipedream.net",
-            "body": {
-              "otp": "{{actions.generate_otp.code}}"
-            },
-            "type": "JSON",
-            "basic": null,
-            "method": "POST",
-            "params": {},
-            "headers": {},
-            "acceptNOK": false,
-            "connectionId": null
           },
           "maskOutput": false,
           "allowFailure": false
@@ -1622,6 +1571,57 @@
           },
           "maskOutput": false,
           "allowFailure": true
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-4#": {
+      "name": "Generate OTP & send email",
+      "description": null,
+      "actions": [
+        {
+          "id": "generate_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "GENERATE_CODE",
+          "params": {
+            "length": 6,
+            "reference": "{{fields.newemail}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "sendtorequestbin",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "https://eoq93i7z3xldmn5.m.pipedream.net",
+            "body": {
+              "otp": "{{actions.generate_otp.code}}"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {},
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
         }
       ],
       "triggers": {
