@@ -32,7 +32,7 @@
               "id": "rich_text_OY3c",
               "type": "RICH_TEXT",
               "config": {
-                "content": "<h1>Manage your account</h1>"
+                "content": "<h1>Manage your account</h1><p>{{context.user.email}} ({{context.user.user_id}})</p>"
               },
               "category": "BLOCK"
             },
@@ -44,7 +44,19 @@
                 "style": {
                   "backgroundColor": "#3F59E4"
                 },
-                "stepId": "step_CaCd"
+                "stepId": "flow_EjR4"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_quTt",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Linked accounts",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "flow_NTk7"
               },
               "category": "BLOCK"
             },
@@ -142,7 +154,7 @@
               "id": "rich_text_4cyY",
               "type": "RICH_TEXT",
               "config": {
-                "content": "<h1>Manage your account</h1><h2>Profile data</h2>"
+                "content": "<h1>Manage your account</h1><h2>Profile data </h2>"
               },
               "category": "BLOCK"
             },
@@ -156,7 +168,7 @@
                 "minLength": null,
                 "multiline": false,
                 "placeholder": null,
-                "defaultValue": "{{context.user.user_metadata.givenName}}"
+                "defaultValue": "{{vars.user.user_metadata.givenName}}"
               },
               "category": "FIELD",
               "required": false,
@@ -172,7 +184,7 @@
                 "minLength": null,
                 "multiline": false,
                 "placeholder": null,
-                "defaultValue": "{{context.user.user_metadata.surname}}"
+                "defaultValue": "{{vars.user.user_metadata.surname}}"
               },
               "category": "FIELD",
               "required": false,
@@ -217,8 +229,8 @@
           ]
         },
         "coordinates": {
-          "x": 1205,
-          "y": 306
+          "x": 1322,
+          "y": 255
         }
       },
       {
@@ -848,6 +860,236 @@
           "x": 1951,
           "y": 2086
         }
+      },
+      {
+        "id": "step_oaMi",
+        "type": "STEP",
+        "alias": "Linked accounts",
+        "config": {
+          "nextNode": "flow_p3Bo",
+          "components": [
+            {
+              "id": "rich_text_kidK",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Linked accounts</h2>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "linkedIdentities",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": "Linked Accounts",
+              "config": {
+                "css": null,
+                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction listIdentities(context) {\n\n  const input = document.createElement('div');\n  \n  function addRadios(context, input) {\n  \n  \tinput.innerHTML='';\n      const identities = context.custom.getParams().identities;\n      \n  \t\tconsole.log(identities);\n    \tif (identities.length > 1) {\n    identities.forEach(function (i) {\n      \n      if (i.provider+\"|\"+i.user_id != context.custom.getParams().user_id) {\n      \n       var option = document.createElement('div');\n  \t\toption.classList.add('af-choiceField-option');\n      var radio = document.createElement('input');\n      radio.classList.add('af-choiceFieldOption-checkable');\n      radio.classList.add('af-choiceFieldOption-radio');\n      radio.setAttribute('type', 'radio');\n      radio.setAttribute('name', \"identityList\");\n      radio.setAttribute('id', i.provider+\"|\"+i.user_id);\n      radio.setAttribute('value', i.provider+\"|\"+i.user_id);\n      option.appendChild(radio);\n      \n      \n      var label = document.createElement('label');\n      label.setAttribute('for', i.provider+\"|\"+i.user_id);\n      label.classList.add('af-field-label');\n      label.classList.add('af-choiceFieldOption-label');\n      var labelSpan = document.createElement('span');\n      labelSpan.classList.add('af-choiceFieldOption-text');\n      labelSpan.innerText=i.provider + \" \" + i.profileData.email\n      label.appendChild(labelSpan);\n      option.appendChild(label);\n      option.insertBefore(radio,label);\n      input.appendChild(option);\n      }\n                  \n      \n    });\n      } else {\n      var text = document.createElement('div');\n  \t\ttext.classList.add('af-blockType-rich_text');\n     var test = document.createElement('p');\n        test.innerText=\"No linked accounts\"\n        text.appendChild(test);\n        input.appendChild(text);\n        \n        \n    }   \n  }\n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n      addRadios(context, input);\n      console.log(\"in init\");\n      return input;\n    },\n    \n    unblock() {\n      console.log(\"in unblock\");\n      if(document.querySelector('div[class*=\"af-scenarioMessage-error\"][style*=\"block\"]')) {\n      \tvar text = document.querySelector('div[class*=\"af-scenarioMessage-error\"][style*=\"block\"]').innerText;\n        console.log(text);\n        text = text.substring(25)\n        console.log(text);\n        document.getElementById(text).parentElement.remove()\n\n      }\n    },\n    \n    \n    update() {\n      addRadios(context, input);\n      console.log(\"in update\");\n      \n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      var radios = document.getElementsByName('identityList');\n\nfor (var i = 0, length = radios.length; i < length; i++) {\n  console.log(radios[i].value);\n  console.log(radios[i].checked);\n  if (radios[i].checked) {\n    console.log(radios[i].value);\n    // do whatever you want with the checked radio\n          return {\n        value: radios[i].value\n      };\n\n    // only one radio can be logically checked, don't check the rest\n    break;\n  }\n}\n\n    },\n  };\n}",
+                "params": {
+                  "user_id": "{{context.user.user_id}}",
+                  "identities": "{{vars.identities}}"
+                },
+                "schema": {}
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "next_button_EfGP",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Unlink Account"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_EY7k",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Link Account",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "step_2ym7"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_UvlP",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_OCer",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_4yLu",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Return to Website",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -453,
+          "y": -967
+        }
+      },
+      {
+        "id": "flow_NTk7",
+        "type": "FLOW",
+        "alias": "LinkedAccounts",
+        "config": {
+          "flowId": "#FLOW-13#",
+          "nextNode": "step_oaMi"
+        },
+        "coordinates": {
+          "x": 211,
+          "y": -227
+        }
+      },
+      {
+        "id": "flow_J4xu",
+        "type": "FLOW",
+        "alias": "startLinking",
+        "config": {
+          "flowId": "#FLOW-14#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": -168,
+          "y": 240
+        }
+      },
+      {
+        "id": "flow_p3Bo",
+        "type": "FLOW",
+        "alias": "UnlinkAccount",
+        "config": {
+          "flowId": "#FLOW-15#",
+          "nextNode": "$ending"
+        },
+        "coordinates": {
+          "x": 330,
+          "y": -497
+        }
+      },
+      {
+        "id": "flow_EjR4",
+        "type": "FLOW",
+        "alias": "getuserdata",
+        "config": {
+          "flowId": "#FLOW-16#",
+          "nextNode": "step_CaCd"
+        },
+        "coordinates": {
+          "x": 1013,
+          "y": 702
+        }
+      },
+      {
+        "id": "step_2ym7",
+        "type": "STEP",
+        "alias": "Link accounts",
+        "config": {
+          "nextNode": "flow_J4xu",
+          "components": [
+            {
+              "id": "rich_text_Cnbs",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h1>Manage your account</h1><h2>Link account</h2>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "linkAccountChoice",
+              "hint": null,
+              "type": "CHOICE",
+              "label": "Link Account",
+              "config": {
+                "options": [
+                  {
+                    "label": "Google",
+                    "value": "Google"
+                  },
+                  {
+                    "label": "Apple",
+                    "value": "Apple"
+                  },
+                  {
+                    "label": "Facebook",
+                    "value": "Facebook"
+                  },
+                  {
+                    "label": "Auth0",
+                    "value": "Auth0"
+                  }
+                ],
+                "multiple": false,
+                "allowOther": null,
+                "defaultValue": null
+              },
+              "category": "FIELD",
+              "required": true,
+              "transient": false
+            },
+            {
+              "id": "jump_button_CPuJ",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Link Account"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "previous_button_LOgc",
+              "type": "PREVIOUS_BUTTON",
+              "config": {
+                "text": "Back"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_NEUj",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_v79V",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Return to Website",
+                "style": {
+                  "backgroundColor": "#3F59E4"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": -993,
+          "y": -842
+        }
       }
     ],
     "ending": {
@@ -900,15 +1142,54 @@
           "allowFailure": false
         },
         {
-          "id": "SetSessions",
+          "id": "if_then_condition_TRRZ",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "sessions": "{{actions.GetSessions.body.sessions}}"
-            }
+            "then": [
+              {
+                "id": "SetSessions",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "sessions": "{{actions.GetSessions.body.sessions}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetSessions.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_3Fs2",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetSessions.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
@@ -955,15 +1236,54 @@
           "allowFailure": false
         },
         {
-          "id": "SetToken",
+          "id": "if_then_condition_JVpH",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "mgmt_token": "{{actions.GetToken.body.access_token}}"
-            }
+            "then": [
+              {
+                "id": "SetToken",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "mgmt_token": "{{actions.GetToken.body.access_token}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetToken.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_FTLp",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "There has been a techincal issue"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
@@ -1007,15 +1327,54 @@
           "allowFailure": false
         },
         {
-          "id": "SetAuthFactors",
+          "id": "if_then_condition_dAIY",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "factors": "{{actions.GetAuthFactors.body}}"
-            }
+            "then": [
+              {
+                "id": "SetAuthFactors",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "factors": "{{actions.GetAuthFactors.body}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetAuthFactors.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_T5g8",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetAuthFactors.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
@@ -1058,7 +1417,7 @@
           "params": {
             "then": [
               {
-                "id": "update_user_IPZP",
+                "id": "updateUserEmail",
                 "type": "AUTH0",
                 "alias": null,
                 "notes": null,
@@ -1070,6 +1429,44 @@
                     "email_verified": true
                   },
                   "connectionId": "#CONN-1#"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              },
+              {
+                "id": "if_then_condition_RMPC",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "BOOLEAN_CONDITION",
+                "params": {
+                  "then": [],
+                  "evaluate": {
+                    "operands": [
+                      {
+                        "operands": [
+                          "{{actions.updateUserEmail.status}}",
+                          "200"
+                        ],
+                        "operator": "EQ"
+                      }
+                    ],
+                    "operator": "AND"
+                  },
+                  "otherwise": [
+                    {
+                      "id": "show_error_message_Wm3i",
+                      "type": "FLOW",
+                      "alias": null,
+                      "notes": null,
+                      "action": "ERROR_MESSAGE",
+                      "params": {
+                        "message": "{{actions.updateUserEmail.body.message}}"
+                      },
+                      "maskOutput": false,
+                      "allowFailure": false
+                    }
+                  ]
                 },
                 "maskOutput": false,
                 "allowFailure": false
@@ -1090,91 +1487,6 @@
             "otherwise": [
               {
                 "id": "show_error_message_Whan",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "عذرًا، رمز التحقق الخاص بك غير صالح. من فضلك قم بمراجعته وحاول مرة أخرى."
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-7#": {
-      "name": "Verify phone OTP & Update user",
-      "description": null,
-      "actions": [
-        {
-          "id": "verify_otp",
-          "type": "OTP",
-          "alias": null,
-          "notes": null,
-          "action": "VERIFY_CODE",
-          "params": {
-            "code": "{{fields.otpphone}}",
-            "reference": "{{fields.newphone.number}}"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_mnXT",
-          "type": "FLOW",
-          "alias": "Is it valid?",
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "update_user_HlyR",
-                "type": "AUTH0",
-                "alias": null,
-                "notes": null,
-                "action": "UPDATE_USER",
-                "params": {
-                  "userId": "{{context.user.user_id}}",
-                  "changes": {
-                    "phone_number": "{{fields.newphone.number}}",
-                    "phone_verified": true
-                  },
-                  "connectionId": "#CONN-1#"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.verify_otp.valid}}",
-                    true
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "showErrorMessage_Whan",
                 "type": "FLOW",
                 "alias": null,
                 "notes": null,
@@ -1240,59 +1552,53 @@
           },
           "maskOutput": false,
           "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-8#": {
-      "name": "GetPasswordChangeTicket",
-      "description": null,
-      "actions": [
-        {
-          "id": "GetPasswordTicket",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/tickets/password-change",
-            "body": {
-              "ttl_sec": 0,
-              "user_id": "{{context.user.user_id}}",
-              "client_id": "CUoPZqhRVJuhRFBURD8KGoHt7yL3UAmv"
-            },
-            "type": "JSON",
-            "basic": null,
-            "method": "POST",
-            "params": {},
-            "headers": {
-              "Authorization": "Bearer {{vars.mgmt_token}}"
-            },
-            "acceptNOK": false,
-            "connectionId": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
         },
         {
-          "id": "SetPwTicket",
+          "id": "if_then_condition_Tzk6",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "pwticket": "{{actions.GetPasswordTicket.body.ticket}}"
-            }
+            "then": [],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    {
+                      "operands": [
+                        "{{actions.sendphoneotp.status}}",
+                        "200"
+                      ],
+                      "operator": "EQ"
+                    },
+                    {
+                      "operands": [
+                        "{{actions.sendphoneotp.status}}",
+                        "400"
+                      ],
+                      "operator": "EQ"
+                    }
+                  ],
+                  "operator": "OR"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_BG1X",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "Error sending OTP"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
@@ -1340,15 +1646,235 @@
           "allowFailure": false
         },
         {
-          "id": "SetMFATicket",
+          "id": "if_then_condition_BChX",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
-            }
+            "then": [
+              {
+                "id": "SetMFATicket",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetMFATicket.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_vbqf",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetMFATicket.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-8#": {
+      "name": "GetPasswordChangeTicket",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetPasswordTicket",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/tickets/password-change",
+            "body": {
+              "ttl_sec": 0,
+              "user_id": "{{context.user.user_id}}",
+              "client_id": "CUoPZqhRVJuhRFBURD8KGoHt7yL3UAmv"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_UeOW",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "SetPwTicket",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "pwticket": "{{actions.GetPasswordTicket.body.ticket}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetPasswordTicket.status}}",
+                    "201"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_A6OD",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetPasswordTicket.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-10#": {
+      "name": "updateUser",
+      "description": null,
+      "actions": [
+        {
+          "id": "updateUser",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "UPDATE_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "changes": {
+              "user_metadata": {
+                "surname": "{{fields.surname}}",
+                "givenName": "{{fields.firstName}}"
+              }
+            },
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_O6rb",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "detailsUpdated",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "Success: your details are updated"
+                },
+                "maskOutput": false,
+                "allowFailure": true
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.updateUser.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_gkPh",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.updateUser.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
@@ -1392,99 +1918,55 @@
           "allowFailure": false
         },
         {
-          "id": "GetSessions",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/sessions",
-            "body": null,
-            "type": "JSON",
-            "basic": null,
-            "method": "GET",
-            "params": {},
-            "headers": {
-              "Authorization": "Bearer {{vars.mgmt_token}}"
-            },
-            "acceptNOK": false,
-            "connectionId": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "storeSessions",
+          "id": "if_then_condition_uFqL",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "sessions": "{{actions.GetSessions.body.sessions}}"
-            }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "show_error_message_5cIq",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "ERROR_MESSAGE",
-          "params": {
-            "message": "Success: Revoked session {{fields.activeDevices.value}}"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-10#": {
-      "name": "updateUser",
-      "description": null,
-      "actions": [
-        {
-          "id": "updateUser",
-          "type": "AUTH0",
-          "alias": null,
-          "notes": null,
-          "action": "UPDATE_USER",
-          "params": {
-            "userId": "{{context.user.user_id}}",
-            "changes": {
-              "user_metadata": {
-                "surname": "{{fields.surname}}",
-                "givenName": "{{fields.firstName}}"
+            "then": [
+              {
+                "id": "show_error_message_5cIq",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "Success: Revoked session {{fields.activeDevices.value}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
               }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.revokeSession.status}}",
+                    "202"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
             },
-            "connectionId": "#CONN-1#"
+            "otherwise": [
+              {
+                "id": "show_error_message_tI7O",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.revokeSession.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
-        },
-        {
-          "id": "detailsUpdated",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "ERROR_MESSAGE",
-          "params": {
-            "message": "Success: your details are updated"
-          },
-          "maskOutput": false,
-          "allowFailure": true
         }
       ],
       "triggers": {
@@ -1503,7 +1985,7 @@
       "description": null,
       "actions": [
         {
-          "id": "revokeSession",
+          "id": "removeFactor",
           "type": "HTTP",
           "alias": null,
           "notes": null,
@@ -1525,17 +2007,339 @@
           "allowFailure": false
         },
         {
-          "id": "GetSessions",
+          "id": "if_then_condition_PT61",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "show_error_message_5cIq",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "Success: Removed factor {{fields.authFactors.value}}"
+                },
+                "maskOutput": false,
+                "allowFailure": true
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.removeFactor.status}}",
+                    "204"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_mjkF",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.removeFactor.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-13#": {
+      "name": "GetLinkedIdentities",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetUserIdentities",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "GET_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_oPq7",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "SetIdentities",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "identities": "{{actions.GetUserIdentities.body.identities}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetUserIdentities.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_SL79",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetUserIdentities.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-14#": {
+      "name": "startLinking",
+      "description": null,
+      "actions": [
+        {
+          "id": "connectionName",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "MAP_VALUE",
+          "params": {
+            "cases": {
+              "Apple": "apple",
+              "Auth0": "Username-Password-Authentication",
+              "Google": "google-oauth2",
+              "Facebook": "facebook"
+            },
+            "value": "{{fields.linkAccountChoice}}",
+            "default": "google-oauth2"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "setLink",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "UPDATE_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "changes": {
+              "app_metadata": {
+                "link": "|{{actions.connectionName.result}}||secondary"
+              }
+            },
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_tqjZ",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.setLink.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_BvY8",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.setLink.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-16#": {
+      "name": "GetUser",
+      "description": null,
+      "actions": [
+        {
+          "id": "getUser",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "GET_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_dXZu",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "store_shared_variable_Ehkz",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "user": "{{actions.getUser.body}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.getUser.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_v8Aq",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.getUser.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-15#": {
+      "name": "UnlinkAccount",
+      "description": null,
+      "actions": [
+        {
+          "id": "unlinkAccount",
           "type": "HTTP",
           "alias": null,
           "notes": null,
           "action": "SEND_REQUEST",
           "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/authentication-methods",
+            "url": "{{vars.auth0_domain}}/api/v2/users/{{context.user.user_id}}/identities/{{ functions.split(fields.linkedIdentities.value,'|')[0] }}/{{ functions.split(fields.linkedIdentities.value,'|')[1] }}",
             "body": null,
             "type": "JSON",
             "basic": null,
-            "method": "GET",
+            "method": "DELETE",
             "params": {},
             "headers": {
               "Authorization": "Bearer {{vars.mgmt_token}}"
@@ -1547,30 +2351,178 @@
           "allowFailure": false
         },
         {
-          "id": "storeFactors",
+          "id": "if_then_condition_LmvY",
           "type": "FLOW",
           "alias": null,
           "notes": null,
-          "action": "STORE_STATE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "data": {
-              "factors": "{{actions.GetAuthFactors.body}}"
-            }
+            "then": [
+              {
+                "id": "show_error_message_5cIq",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "Success: Removed account {{fields.linkedIdentities.value}}"
+                },
+                "maskOutput": false,
+                "allowFailure": true
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.unlinkAccount.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_hcrp",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.unlinkAccount.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-7#": {
+      "name": "Verify phone OTP & Update user",
+      "description": null,
+      "actions": [
+        {
+          "id": "verify_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "VERIFY_CODE",
+          "params": {
+            "code": "{{fields.otpphone}}",
+            "reference": "{{fields.newphone.number}}"
           },
           "maskOutput": false,
           "allowFailure": false
         },
         {
-          "id": "show_error_message_5cIq",
+          "id": "if_then_condition_mnXT",
           "type": "FLOW",
-          "alias": null,
+          "alias": "Is it valid?",
           "notes": null,
-          "action": "ERROR_MESSAGE",
+          "action": "BOOLEAN_CONDITION",
           "params": {
-            "message": "Success: Removed factor {{fields.authFactors.value}}"
+            "then": [
+              {
+                "id": "updateUserPhone",
+                "type": "AUTH0",
+                "alias": null,
+                "notes": null,
+                "action": "UPDATE_USER",
+                "params": {
+                  "userId": "{{context.user.user_id}}",
+                  "changes": {
+                    "phone_number": "{{fields.newphone.number}}",
+                    "phone_verified": true
+                  },
+                  "connectionId": "#CONN-1#"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              },
+              {
+                "id": "if_then_condition_bhnU",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "BOOLEAN_CONDITION",
+                "params": {
+                  "then": [],
+                  "evaluate": {
+                    "operands": [
+                      {
+                        "operands": [
+                          "{{actions.updateUserPhone.status}}",
+                          "200"
+                        ],
+                        "operator": "EQ"
+                      }
+                    ],
+                    "operator": "AND"
+                  },
+                  "otherwise": [
+                    {
+                      "id": "show_error_message_IBDQ",
+                      "type": "FLOW",
+                      "alias": null,
+                      "notes": null,
+                      "action": "ERROR_MESSAGE",
+                      "params": {
+                        "message": "{{actions.updateUserPhone.body.message}}"
+                      },
+                      "maskOutput": false,
+                      "allowFailure": false
+                    }
+                  ]
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.verify_otp.valid}}",
+                    true
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "showErrorMessage_Whan",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "We're sorry, your verification code is not valid. Please, review it and try it again."
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
-          "allowFailure": true
+          "allowFailure": false
         }
       ],
       "triggers": {
@@ -1619,6 +2571,56 @@
             "headers": {},
             "acceptNOK": false,
             "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_GdL9",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    {
+                      "operands": [
+                        "{{actions.sendtorequestbin.status}}",
+                        "200"
+                      ],
+                      "operator": "EQ"
+                    },
+                    {
+                      "operands": [
+                        "{{actions.sendtorequestbin.status}}",
+                        "400"
+                      ],
+                      "operator": "EQ"
+                    }
+                  ],
+                  "operator": "OR"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_9aTF",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "Error sending OTP"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false
