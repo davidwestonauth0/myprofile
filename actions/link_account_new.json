@@ -1,0 +1,248 @@
+{
+  "version": "3.0.0",
+  "form": {
+    "name": "Link Account - New",
+    "description": null,
+    "messages": {
+      "custom": {},
+      "errors": {}
+    },
+    "languages": {
+      "default": null,
+      "primary": "en"
+    },
+    "translations": {},
+    "start": {
+      "nextNode": "flow_zeMp",
+      "coordinates": {
+        "x": -79,
+        "y": -90
+      },
+      "hiddenFields": []
+    },
+    "nodes": [
+      {
+        "id": "step_nndF",
+        "type": "STEP",
+        "alias": "New step",
+        "config": {
+          "nextNode": "flow_AC6S",
+          "components": [
+            {
+              "id": "rich_text_YYP6",
+              "type": "RICH_TEXT",
+              "config": {
+                "content": "<h2>Link your existing account?</h2><p>We found an existing account with {{context.user.email}}</p><p>Would you like to link the account to keep your existing order history?</p>"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "next_button_aAUy",
+              "type": "NEXT_BUTTON",
+              "config": {
+                "text": "Link my account"
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "divider_iR0h",
+              "type": "DIVIDER",
+              "config": {
+                "text": null
+              },
+              "category": "BLOCK"
+            },
+            {
+              "id": "jump_button_Dfsx",
+              "type": "JUMP_BUTTON",
+              "config": {
+                "text": "Skip this step",
+                "style": {
+                  "backgroundColor": "#808080"
+                },
+                "stepId": "$ending"
+              },
+              "category": "BLOCK"
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 867,
+          "y": -192
+        }
+      },
+      {
+        "id": "step_9cAO",
+        "type": "STEP",
+        "alias": "New step",
+        "config": {
+          "nextNode": "$ending",
+          "components": [
+            {
+              "id": "redirect",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": null,
+              "config": {
+                "css": null,
+                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction GoPwTicket(context) {\n\n  const input = document.createElement('div');\n\n\n  \n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n     window.location.replace(context.custom.getParams().auth_url); \n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      return {\n        value: input.value\n      };\n    },\n  };\n}",
+                "params": {
+                  "auth_url": "{{vars.auth_url}}"
+                },
+                "schema": {}
+              },
+              "category": "FIELD",
+              "required": false,
+              "transient": false
+            }
+          ]
+        },
+        "coordinates": {
+          "x": 1840,
+          "y": -40
+        }
+      },
+      {
+        "id": "flow_AC6S",
+        "type": "FLOW",
+        "alias": "setAuthUrl",
+        "config": {
+          "flowId": "#FLOW-1#",
+          "nextNode": "step_9cAO"
+        },
+        "coordinates": {
+          "x": 1363,
+          "y": 525
+        }
+      },
+      {
+        "id": "router_RRgU",
+        "type": "ROUTER",
+        "alias": "inAccountLinking",
+        "config": {
+          "rules": [
+            {
+              "id": "id_6098372030682",
+              "alias": "LinkInProgress",
+              "nextNode": "$ending",
+              "condition": {
+                "operands": [
+                  {
+                    "operands": [
+                      "{{vars.code}}"
+                    ],
+                    "operator": "HAS_VALUE"
+                  }
+                ],
+                "operator": "AND"
+              }
+            }
+          ],
+          "fallback": "step_nndF"
+        },
+        "coordinates": {
+          "x": 513,
+          "y": 159
+        }
+      },
+      {
+        "id": "flow_zeMp",
+        "type": "FLOW",
+        "alias": "setCode",
+        "config": {
+          "flowId": "#FLOW-2#",
+          "nextNode": "router_RRgU"
+        },
+        "coordinates": {
+          "x": 135,
+          "y": 142
+        }
+      }
+    ],
+    "ending": {
+      "content": null,
+      "redirection": null,
+      "callback": null,
+      "afterSubmit": {
+        "email": null,
+        "flowId": null
+      },
+      "coordinates": {
+        "x": 1912,
+        "y": 552
+      },
+      "resumeFlow": true
+    },
+    "social": [],
+    "style": {
+      "css": null,
+      "theme": "ROUND",
+      "version": "MODERN"
+    },
+    "tags": []
+  },
+  "flows": {
+    "#FLOW-1#": {
+      "name": "setAuthUrl",
+      "description": null,
+      "actions": [
+        {
+          "id": "store_shared_variable_xYbr",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "auth_url": "https://{{meta.navigation.location.hostname}}/authorize?client_id={{context.client.client_id}}&redirect_uri={{meta.navigation.location.href}}&nonce={{vars.nonce}}&response_type=code&prompt=login&linking=true&code_challenge={{vars.code_challenge}}&code_challenge_method=S256&connection={{vars.target_connection}}&login_hint={{vars.target_username}}&scope=openid%20profile%20email&response_mode=query"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-2#": {
+      "name": "setCode",
+      "description": null,
+      "actions": [
+        {
+          "id": "setCode",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "code": "{{meta.navigation.location.searchParams.code}}",
+              "redirect_uri": "{{meta.navigation.location.protocol}}//{{meta.navigation.location.hostname}}{{meta.navigation.location.pathname}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    }
+  },
+  "connections": {}
+}

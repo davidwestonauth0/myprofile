@@ -4,41 +4,58 @@
 * @param {Event} event - Details about the user and the context in which they are logging in.
 * @param {PostLoginAPI} api - Interface whose methods can be used to change the behavior of the login.
 */
-exports.onExecutePostLogin = async (event, api) => {
+  const FORM_ID = 'ap_cE5wuUyGqGMZrk82LNWx9r';
+  const interactive_login = new RegExp('^oidc-');
+  const database_sub = new RegExp('^auth0|');
 
-  const FORM_ID = 'ap_i7AK7g6X4ymghxCxJVzoJF';
+  async function checkForExistingAccount(event, api, email) {
+    //console.log(`linking ${event.user.user_id} under ${primary_sub}`);
 
-  if (event.transaction.requested_scopes.includes("myprofile")) {
-    const crypto = require('crypto');
-    const codeVerifier = crypto
-    .randomBytes(60)
-    .toString('hex')
-    .slice(0, 128);
-    const codeChallenge = crypto
-    .createHash('sha256')
-    .update(Buffer.from(codeVerifier))
-    .digest('base64')
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    const {ManagementClient, AuthenticationClient} = require('auth0');
 
+    const domain = event?.secrets?.domain || event.request?.hostname;
 
+    let {value: token} = api.cache.get('management-token') || {};
 
-  api.prompt.render(FORM_ID, {
-    vars: {
-      current_session: event.session.id,
-      client_id: event.secrets.CLIENT_ID,
-      client_secret: event.secrets.CLIENT_SECRET,
-      auth0_domain: "https://"+event.secrets.DOMAIN,
-      code_challenge: codeChallenge,
-      code_verifier: codeVerifier,
-      target_primary: "false",
-      nonce: event.transaction.id
+    if (!token) {
+        const {clientId, clientSecret} = event.secrets || {};
+
+        const cc = new AuthenticationClient({domain, clientId, clientSecret});
+
+        try {
+            const {data} = await cc.oauth.clientCredentialsGrant({scope: `update:users read:users`, audience: `https://${domain}/api/v2/`});
+            token = data?.access_token;
+
+            if (!token) {
+                console.log('failed get api v2 cc token');
+                return;
+            }
+            console.log('cache MIS m2m token!');
+
+            const result = api.cache.set('management-token', token, {ttl: data.expires_in * 1000});
+
+            if (result?.type === 'error') {
+                console.log('failed to set the token in the cache with error code', result.code);
+            }
+        } catch (err) {
+            console.log('failed calling cc grant', err);
+            return;
+        }
     }
-  });
-  }
-}
 
+    //console.log(`m2m token: ${token}`);
+
+    const client = new ManagementClient({domain, token});
+
+    try {
+        return await client.usersByEmail.getByEmail({email: email});
+    } catch (err) {
+        console.log(err);
+        return;
+    }
+
+
+}
 
 async function exchangeAndVerify(api, domain, custom_domain, client_id, code_verifier, redirect_uri, code, nonce) {
 
@@ -106,6 +123,7 @@ async function exchangeAndVerify(api, domain, custom_domain, client_id, code_ver
         jwt.verify(id_token, getKey, {
             issuer: `https://${custom_domain}/`,
             audience: client_id,
+            nonce,
             algorithms: 'RS256'
         }, (err, decoded) => {
             if (err) reject(err);
@@ -131,20 +149,14 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
     const {ManagementClient, AuthenticationClient} = require('auth0');
 
     let {value: token} = api.cache.get('management-token') || {};
-    const CLIENT_SECRET = event.secrets.CLIENT_SECRET;
-    const CLIENT_ID = event.secrets.CLIENT_ID;
-    const DOMAIN = event.secrets.DOMAIN;
-    console.log(CLIENT_SECRET);
-    console.log(CLIENT_ID);
-    console.log(DOMAIN);
+    const {domain, clientId, clientSecret} = event.secrets || {};
     if (!token) {
-        console.log("here");
-        const cc = new AuthenticationClient({domain: DOMAIN, clientId: CLIENT_ID, clientSecret: CLIENT_SECRET});
-        console.log(cc);
+
+        const cc = new AuthenticationClient({domain, clientId, clientSecret});
 
         try {
-            const {data} = await cc.oauth.clientCredentialsGrant({scope: `update:users read:users`, audience: `https://${DOMAIN}/api/v2/`});
-            console.log(data);
+            const {data} = await cc.oauth.clientCredentialsGrant({scope: `update:users read:users`, audience: `https://${domain}/api/v2/`});
+
             token = data?.access_token;
 
             if (!token) {
@@ -164,14 +176,12 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
         }
     }
 
-    //console.log(`m2m token: ${token}`);
 
-    const client = new ManagementClient({domain: DOMAIN, token});
-    console.log(linkDetails);
 
-    if (linkDetails.target_primary=="false") {
+    const client = new ManagementClient({domain, token});
+
+    if (linkDetails.target_primary=='false') {
         const provider = linkDetails.target_provider;
-        console.log(provider);
         const user_id = primary_sub;
 
         try {
@@ -203,25 +213,70 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
     }
 }
 
+exports.onExecutePostLogin = async (event, api) => {
 
+  const protocol = event?.transaction?.protocol || 'unknown';
 
-/**
-* Handler that will be invoked when this action is resuming after an external redirect. If your
-* onExecutePostLogin function does not perform a redirect, this function can be safely ignored.
-*
-* @param {Event} event - Details about the user and the context in which they are logging in.
-* @param {PostLoginAPI} api - Interface whose methods can be used to change the behavior of the login.
-*/
-  const database_sub = new RegExp('^auth0|');
+  if (!interactive_login.test(protocol)) {
+      return;
+  }
+
+  if(event.stats.logins_count > 1) {
+    console.log("skipping as not the first login");
+    return;
+  }
+
+  console.log(event.request.query);
+  if(event.request.query.linking) {
+    console.log("skipping as already in linking");
+    return;
+  }
+
+  var existingUsers = await checkForExistingAccount(event, api, event.user.email);
+  existingUsers = existingUsers.data;
+  existingUsers = existingUsers.filter((t) => t.user_id !=  event.user.user_id );
+
+  // remove the current user
+  if (existingUsers.length > 0) {
+
+    const crypto = require('crypto');
+    const codeVerifier = crypto
+    .randomBytes(60)
+    .toString('hex')
+    .slice(0, 128);
+    const codeChallenge = crypto
+    .createHash('sha256')
+    .update(Buffer.from(codeVerifier))
+    .digest('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
+    api.prompt.render(FORM_ID, {
+        vars: {
+            target_user_id: existingUsers[0].user_id,
+            target_username: existingUsers[0].username || existingUsers[0].email || existingUsers[0].phone_number,
+            target_connection: existingUsers[0].identities[0].connection,
+            target_provider: existingUsers[0].identities[0].provider,
+            code_challenge: codeChallenge,
+            code_verifier: codeVerifier,
+            target_primary: 'true',
+            nonce: event.transaction.id
+        }
+    });
+  } else {
+    console.log("No matching users");
+  }
+}
 
 exports.onContinuePostLogin = async (event, api) => {
   console.log(`onContinuePostLogin event: ${JSON.stringify(event)}`);
 
-  if (event.prompt.vars.code) {
+    if(event.prompt.vars.code) {
 
-    const id_token = await exchangeAndVerify(api, event?.secrets?.DOMAIN, event.request?.hostname, event.client.client_id, event.prompt.vars.code_verifier, event.prompt.vars.redirect_uri, event.prompt.vars.code, event.transaction.id);
+    const id_token = await exchangeAndVerify(api, event?.secrets?.domain, event.request?.hostname, event.client.client_id, event.prompt.vars.code_verifier, event.prompt.vars.redirect_uri, event.prompt.vars.code, event.transaction.id);
     console.log(id_token);
-    console.log(id_token.email_verified);
+
     if (id_token.email_verified !== true && event.prompt.vars.target_connection !== "sms") {
         console.log(`skipped linking, email not verified in nested tx user: ${id_token.email}`);
         return;
@@ -233,12 +288,12 @@ exports.onContinuePostLogin = async (event, api) => {
     }
 
 
-    if (event.user.email !== id_token.email && event.prompt.vars.target_primary=="true") {
+    if (event.user.email !== id_token.email && event.prompt.vars.target_primary=='true') {
         api.access.deny('emails do not match');
         return;
     }
 
     await linkAndMakePrimary(event, api, id_token.sub, event.prompt.vars);
-  }
+    }
 
 }
