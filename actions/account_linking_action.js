@@ -9,7 +9,6 @@
   const database_sub = new RegExp('^auth0|');
 
   async function checkForExistingAccount(event, api, email) {
-    //console.log(`linking ${event.user.user_id} under ${primary_sub}`);
 
     const {ManagementClient, AuthenticationClient} = require('auth0');
 
@@ -43,8 +42,6 @@
         }
     }
 
-    //console.log(`m2m token: ${token}`);
-
     const client = new ManagementClient({domain, token});
 
     try {
@@ -60,7 +57,6 @@
 async function exchangeAndVerify(api, domain, custom_domain, client_id, code_verifier, redirect_uri, code, nonce) {
 
     const axios = require('axios');
-    console.log(domain);
 
     console.log(`exchanging code: ${code}`);
 
@@ -176,8 +172,6 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
         }
     }
 
-
-
     const client = new ManagementClient({domain, token});
 
     if (linkDetails.target_primary=='false') {
@@ -226,7 +220,6 @@ exports.onExecutePostLogin = async (event, api) => {
     return;
   }
 
-  console.log(event.request.query);
   if(event.request.query.linking) {
     console.log("skipping as already in linking");
     return;
@@ -265,7 +258,7 @@ exports.onExecutePostLogin = async (event, api) => {
         }
     });
   } else {
-    console.log("No matching users");
+    console.log("No matching users - no account linking");
   }
 }
 
@@ -275,7 +268,6 @@ exports.onContinuePostLogin = async (event, api) => {
     if(event.prompt.vars.code) {
 
     const id_token = await exchangeAndVerify(api, event?.secrets?.domain, event.request?.hostname, event.client.client_id, event.prompt.vars.code_verifier, event.prompt.vars.redirect_uri, event.prompt.vars.code, event.transaction.id);
-    console.log(id_token);
 
     if (id_token.email_verified !== true && event.prompt.vars.target_connection !== "sms") {
         console.log(`skipped linking, email not verified in nested tx user: ${id_token.email}`);
@@ -295,5 +287,4 @@ exports.onContinuePostLogin = async (event, api) => {
 
     await linkAndMakePrimary(event, api, id_token.sub, event.prompt.vars);
     }
-
 }

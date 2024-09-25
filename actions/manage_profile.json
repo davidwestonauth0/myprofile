@@ -1326,7 +1326,7 @@
           "params": {
             "url": "{{vars.auth0_domain}}/oauth/token",
             "body": {
-              "scope": "update:users read:users delete:authentication_methods read:sessions delete:sessions read:authentication_methods create:user_tickets create:guardian_enrollment_tickets",
+              "scope": "update:users read:users delete:authentication_methods read:sessions delete:sessions delete:refresh_tokens read:authentication_methods create:user_tickets create:guardian_enrollment_tickets",
               "audience": "{{vars.auth0_domain}}/api/v2/",
               "client_id": "{{vars.client_id}}",
               "grant_type": "client_credentials",
@@ -1723,82 +1723,54 @@
         "rateLimits": []
       }
     },
-    "#FLOW-5#": {
-      "name": "Verify OTP & Update user",
+    "#FLOW-8#": {
+      "name": "GetPasswordChangeTicket",
       "description": null,
       "actions": [
         {
-          "id": "verify_otp",
-          "type": "OTP",
+          "id": "GetPasswordTicket",
+          "type": "HTTP",
           "alias": null,
           "notes": null,
-          "action": "VERIFY_CODE",
+          "action": "SEND_REQUEST",
           "params": {
-            "code": "{{fields.otp}}",
-            "reference": "{{fields.newemail}}"
+            "url": "{{vars.auth0_domain}}/api/v2/tickets/password-change",
+            "body": {
+              "ttl_sec": 0,
+              "user_id": "{{context.user.user_id}}",
+              "client_id": "CUoPZqhRVJuhRFBURD8KGoHt7yL3UAmv"
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
           },
           "maskOutput": false,
           "allowFailure": false
         },
         {
-          "id": "if_then_condition_mnXT",
+          "id": "if_then_condition_UeOW",
           "type": "FLOW",
-          "alias": "Is it valid?",
+          "alias": null,
           "notes": null,
           "action": "BOOLEAN_CONDITION",
           "params": {
             "then": [
               {
-                "id": "updateUserEmail",
-                "type": "AUTH0",
-                "alias": null,
-                "notes": null,
-                "action": "UPDATE_USER",
-                "params": {
-                  "userId": "{{context.user.user_id}}",
-                  "changes": {
-                    "email": "{{fields.newemail}}",
-                    "email_verified": true
-                  },
-                  "connectionId": "#CONN-1#"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              },
-              {
-                "id": "if_then_condition_RMPC",
+                "id": "SetPwTicket",
                 "type": "FLOW",
                 "alias": null,
                 "notes": null,
-                "action": "BOOLEAN_CONDITION",
+                "action": "STORE_STATE",
                 "params": {
-                  "then": [],
-                  "evaluate": {
-                    "operands": [
-                      {
-                        "operands": [
-                          "{{actions.updateUserEmail.status}}",
-                          "200"
-                        ],
-                        "operator": "EQ"
-                      }
-                    ],
-                    "operator": "AND"
-                  },
-                  "otherwise": [
-                    {
-                      "id": "show_error_message_Wm3i",
-                      "type": "FLOW",
-                      "alias": null,
-                      "notes": null,
-                      "action": "ERROR_MESSAGE",
-                      "params": {
-                        "message": "{{actions.updateUserEmail.body.message}}"
-                      },
-                      "maskOutput": false,
-                      "allowFailure": false
-                    }
-                  ]
+                  "data": {
+                    "pwticket": "{{actions.GetPasswordTicket.body.ticket}}"
+                  }
                 },
                 "maskOutput": false,
                 "allowFailure": false
@@ -1808,8 +1780,8 @@
               "operands": [
                 {
                   "operands": [
-                    "{{actions.verify_otp.valid}}",
-                    true
+                    "{{actions.GetPasswordTicket.status}}",
+                    "201"
                   ],
                   "operator": "EQ"
                 }
@@ -1818,13 +1790,13 @@
             },
             "otherwise": [
               {
-                "id": "show_error_message_Whan",
+                "id": "show_error_message_A6OD",
                 "type": "FLOW",
                 "alias": null,
                 "notes": null,
                 "action": "ERROR_MESSAGE",
                 "params": {
-                  "message": "We're sorry, your verification code is not valid. Please, review it and try it again."
+                  "message": "{{actions.GetPasswordTicket.body.message}}"
                 },
                 "maskOutput": false,
                 "allowFailure": false
@@ -1932,196 +1904,6 @@
         "rateLimits": []
       }
     },
-    "#FLOW-8#": {
-      "name": "GetPasswordChangeTicket",
-      "description": null,
-      "actions": [
-        {
-          "id": "GetPasswordTicket",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/tickets/password-change",
-            "body": {
-              "ttl_sec": 0,
-              "user_id": "{{context.user.user_id}}",
-              "client_id": "CUoPZqhRVJuhRFBURD8KGoHt7yL3UAmv"
-            },
-            "type": "JSON",
-            "basic": null,
-            "method": "POST",
-            "params": {},
-            "headers": {
-              "Authorization": "Bearer {{vars.mgmt_token}}"
-            },
-            "acceptNOK": false,
-            "connectionId": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_UeOW",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "SetPwTicket",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "STORE_STATE",
-                "params": {
-                  "data": {
-                    "pwticket": "{{actions.GetPasswordTicket.body.ticket}}"
-                  }
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.GetPasswordTicket.status}}",
-                    "201"
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "show_error_message_A6OD",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "{{actions.GetPasswordTicket.body.message}}"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-9#": {
-      "name": "GetMFATicket",
-      "description": null,
-      "actions": [
-        {
-          "id": "GetMFATicket",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/guardian/enrollments/ticket",
-            "body": {
-              "user_id": "{{context.user.user_id}}",
-              "send_mail": false,
-              "allow_multiple_enrollments": true
-            },
-            "type": "JSON",
-            "basic": null,
-            "method": "POST",
-            "params": {},
-            "headers": {
-              "Authorization": "Bearer {{vars.mgmt_token}}"
-            },
-            "acceptNOK": false,
-            "connectionId": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_BChX",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "SetMFATicket",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "STORE_STATE",
-                "params": {
-                  "data": {
-                    "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
-                  }
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.GetMFATicket.status}}",
-                    "200"
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "show_error_message_vbqf",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "{{actions.GetMFATicket.body.message}}"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
     "#FLOW-11#": {
       "name": "RevokeSession",
       "description": null,
@@ -2133,11 +1915,11 @@
           "notes": null,
           "action": "SEND_REQUEST",
           "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/sessions/{{fields.activeDevices.value}}",
-            "body": null,
+            "url": "{{vars.auth0_domain}}/api/v2/sessions/{{fields.activeDevices.value}}/revoke",
+            "body": {},
             "type": "JSON",
             "basic": null,
-            "method": "DELETE",
+            "method": "POST",
             "params": {},
             "headers": {
               "Authorization": "Bearer {{vars.mgmt_token}}"
@@ -2504,88 +2286,6 @@
         "rateLimits": []
       }
     },
-    "#FLOW-16#": {
-      "name": "GetUser",
-      "description": null,
-      "actions": [
-        {
-          "id": "getUser",
-          "type": "AUTH0",
-          "alias": null,
-          "notes": null,
-          "action": "GET_USER",
-          "params": {
-            "userId": "{{context.user.user_id}}",
-            "connectionId": "#CONN-1#"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_dXZu",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "store_shared_variable_Ehkz",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "STORE_STATE",
-                "params": {
-                  "data": {
-                    "user": "{{actions.getUser.body}}"
-                  }
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.getUser.status}}",
-                    "200"
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "show_error_message_v8Aq",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "{{actions.getUser.body.message}}"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
     "#FLOW-15#": {
       "name": "UnlinkAccount",
       "description": null,
@@ -2654,6 +2354,88 @@
                 "action": "ERROR_MESSAGE",
                 "params": {
                   "message": "{{actions.unlinkAccount.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-16#": {
+      "name": "GetUser",
+      "description": null,
+      "actions": [
+        {
+          "id": "getUser",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "GET_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_dXZu",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "store_shared_variable_Ehkz",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "user": "{{actions.getUser.body}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.getUser.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_v8Aq",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.getUser.body.message}}"
                 },
                 "maskOutput": false,
                 "allowFailure": false
@@ -2784,6 +2566,224 @@
               "target_username": "{{meta.navigation.location.searchParams.target_username}}",
               "target_connection": "{{meta.navigation.location.searchParams.target_connection}}"
             }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-5#": {
+      "name": "Verify OTP & Update user",
+      "description": null,
+      "actions": [
+        {
+          "id": "verify_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "VERIFY_CODE",
+          "params": {
+            "code": "{{fields.otp}}",
+            "reference": "{{fields.newemail}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_mnXT",
+          "type": "FLOW",
+          "alias": "Is it valid?",
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "updateUserEmail",
+                "type": "AUTH0",
+                "alias": null,
+                "notes": null,
+                "action": "UPDATE_USER",
+                "params": {
+                  "userId": "{{context.user.user_id}}",
+                  "changes": {
+                    "email": "{{fields.newemail}}",
+                    "email_verified": true
+                  },
+                  "connectionId": "#CONN-1#"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              },
+              {
+                "id": "if_then_condition_RMPC",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "BOOLEAN_CONDITION",
+                "params": {
+                  "then": [],
+                  "evaluate": {
+                    "operands": [
+                      {
+                        "operands": [
+                          "{{actions.updateUserEmail.status}}",
+                          "200"
+                        ],
+                        "operator": "EQ"
+                      }
+                    ],
+                    "operator": "AND"
+                  },
+                  "otherwise": [
+                    {
+                      "id": "show_error_message_Wm3i",
+                      "type": "FLOW",
+                      "alias": null,
+                      "notes": null,
+                      "action": "ERROR_MESSAGE",
+                      "params": {
+                        "message": "{{actions.updateUserEmail.body.message}}"
+                      },
+                      "maskOutput": false,
+                      "allowFailure": false
+                    }
+                  ]
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.verify_otp.valid}}",
+                    true
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_Whan",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "We're sorry, your verification code is not valid. Please, review it and try it again."
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-9#": {
+      "name": "GetMFATicket",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetMFATicket",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/guardian/enrollments/ticket",
+            "body": {
+              "user_id": "{{context.user.user_id}}",
+              "send_mail": false,
+              "allow_multiple_enrollments": true
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_BChX",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "SetMFATicket",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetMFATicket.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_vbqf",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetMFATicket.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
           },
           "maskOutput": false,
           "allowFailure": false

@@ -7,8 +7,14 @@
 exports.onExecutePostLogin = async (event, api) => {
 
   const FORM_ID = 'ap_i7AK7g6X4ymghxCxJVzoJF';
+    const interactive_login = new RegExp('^oidc-');
+      const protocol = event?.transaction?.protocol || 'unknown';
 
-  if (event.transaction.requested_scopes.includes("myprofile")) {
+  if (!interactive_login.test(protocol)) {
+      return;
+  }
+
+  if (event.transaction && event.transaction.requested_scopes && event.transaction.requested_scopes.includes("myprofile")) {
     const crypto = require('crypto');
     const codeVerifier = crypto
     .randomBytes(60)
@@ -43,7 +49,6 @@ exports.onExecutePostLogin = async (event, api) => {
 async function exchangeAndVerify(api, domain, custom_domain, client_id, code_verifier, redirect_uri, code, nonce) {
 
     const axios = require('axios');
-    console.log(domain);
 
     console.log(`exchanging code: ${code}`);
 
@@ -134,17 +139,12 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
     const CLIENT_SECRET = event.secrets.CLIENT_SECRET;
     const CLIENT_ID = event.secrets.CLIENT_ID;
     const DOMAIN = event.secrets.DOMAIN;
-    console.log(CLIENT_SECRET);
-    console.log(CLIENT_ID);
-    console.log(DOMAIN);
+
     if (!token) {
-        console.log("here");
         const cc = new AuthenticationClient({domain: DOMAIN, clientId: CLIENT_ID, clientSecret: CLIENT_SECRET});
-        console.log(cc);
 
         try {
             const {data} = await cc.oauth.clientCredentialsGrant({scope: `update:users read:users`, audience: `https://${DOMAIN}/api/v2/`});
-            console.log(data);
             token = data?.access_token;
 
             if (!token) {
@@ -164,14 +164,10 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
         }
     }
 
-    //console.log(`m2m token: ${token}`);
-
     const client = new ManagementClient({domain: DOMAIN, token});
-    console.log(linkDetails);
 
     if (linkDetails.target_primary=="false") {
         const provider = linkDetails.target_provider;
-        console.log(provider);
         const user_id = primary_sub;
 
         try {
@@ -220,8 +216,7 @@ exports.onContinuePostLogin = async (event, api) => {
   if (event.prompt.vars.code) {
 
     const id_token = await exchangeAndVerify(api, event?.secrets?.DOMAIN, event.request?.hostname, event.client.client_id, event.prompt.vars.code_verifier, event.prompt.vars.redirect_uri, event.prompt.vars.code, event.transaction.id);
-    console.log(id_token);
-    console.log(id_token.email_verified);
+
     if (id_token.email_verified !== true && event.prompt.vars.target_connection !== "sms") {
         console.log(`skipped linking, email not verified in nested tx user: ${id_token.email}`);
         return;
