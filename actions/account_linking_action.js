@@ -1,28 +1,45 @@
 /**
-* Handler that will be called during the execution of a PostLogin flow.
-*
-* @param {Event} event - Details about the user and the context in which they are logging in.
-* @param {PostLoginAPI} api - Interface whose methods can be used to change the behavior of the login.
-*/
-  const FORM_ID = 'ap_cE5wuUyGqGMZrk82LNWx9r';
-  const interactive_login = new RegExp('^oidc-');
-  const database_sub = new RegExp('^auth0|');
+ * Handler that will be called during the execution of a PostLogin flow.
+ *
+ * @param {Event} event - Details about the user and the context in which they are logging in.
+ * @param {PostLoginAPI} api - Interface whose methods can be used to change the behavior of the login.
+ */
+const FORM_ID = 'ap_cE5wuUyGqGMZrk82LNWx9r';
+const interactive_login = new RegExp('^oidc-');
+const database_sub = new RegExp('^auth0|');
 
-  async function checkForExistingAccount(event, api, email) {
+async function checkForExistingAccount(event, api, email) {
 
-    const {ManagementClient, AuthenticationClient} = require('auth0');
+    const {
+        ManagementClient,
+        AuthenticationClient
+    } = require('auth0');
 
     const domain = event?.secrets?.domain || event.request?.hostname;
 
-    let {value: token} = api.cache.get('management-token') || {};
+    let {
+        value: token
+    } = api.cache.get('management-token') || {};
 
     if (!token) {
-        const {clientId, clientSecret} = event.secrets || {};
+        const {
+            clientId,
+            clientSecret
+        } = event.secrets || {};
 
-        const cc = new AuthenticationClient({domain, clientId, clientSecret});
+        const cc = new AuthenticationClient({
+            domain,
+            clientId,
+            clientSecret
+        });
 
         try {
-            const {data} = await cc.oauth.clientCredentialsGrant({scope: `update:users read:users`, audience: `https://${domain}/api/v2/`});
+            const {
+                data
+            } = await cc.oauth.clientCredentialsGrant({
+                scope: `update:users read:users`,
+                audience: `https://${domain}/api/v2/`
+            });
             token = data?.access_token;
 
             if (!token) {
@@ -31,7 +48,9 @@
             }
             console.log('cache MIS m2m token!');
 
-            const result = api.cache.set('management-token', token, {ttl: data.expires_in * 1000});
+            const result = api.cache.set('management-token', token, {
+                ttl: data.expires_in * 1000
+            });
 
             if (result?.type === 'error') {
                 console.log('failed to set the token in the cache with error code', result.code);
@@ -42,10 +61,15 @@
         }
     }
 
-    const client = new ManagementClient({domain, token});
+    const client = new ManagementClient({
+        domain,
+        token
+    });
 
     try {
-        return await client.usersByEmail.getByEmail({email: email});
+        return await client.usersByEmail.getByEmail({
+            email: email
+        });
     } catch (err) {
         console.log(err);
         return;
@@ -54,28 +78,34 @@
 
 }
 
+
+
 async function exchangeAndVerify(api, domain, custom_domain, client_id, code_verifier, redirect_uri, code, nonce) {
 
     const axios = require('axios');
 
     console.log(`exchanging code: ${code}`);
 
-    const {data: {id_token}} =
-        await axios({
-            method: 'post',
-            url: `https://${custom_domain}/oauth/token`,
-            data: {
-                client_id,
-                code,
-                code_verifier,
-                grant_type: 'authorization_code',
-                redirect_uri
-            },
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            timeout: 5000 // 5 sec
-        });
+    const {
+        data: {
+            id_token
+        }
+    } =
+    await axios({
+        method: 'post',
+        url: `https://${custom_domain}/oauth/token`,
+        data: {
+            client_id,
+            code,
+            code_verifier,
+            grant_type: 'authorization_code',
+            redirect_uri
+        },
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        timeout: 5000 // 5 sec
+    });
 
     console.log(`id_token: ${id_token}`);
 
@@ -89,7 +119,9 @@ async function exchangeAndVerify(api, domain, custom_domain, client_id, code_ver
 
     function getKey(header, callback) {
 
-        const {value: signingKey} = api.cache.get(`key-${header.kid}`) || {};
+        const {
+            value: signingKey
+        } = api.cache.get(`key-${header.kid}`) || {};
 
         if (!signingKey) {
             console.log(`cache MIS signing key: ${header.kid}`);
@@ -128,30 +160,47 @@ async function exchangeAndVerify(api, domain, custom_domain, client_id, code_ver
     });
 }
 
-async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
+async function linkAndMakePrimary(event, api, token_sub, token_provider, makePrimary) {
 
-    if (primary_sub===event.user.user_id){
+    if (token_sub === event.user.user_id) {
         console.log("Skipping as already linked");
         return;
     }
 
-    if (!linkDetails.primary) {
-        console.log(`linking ${primary_sub} under ${event.user.user_id}`);
-    }
-    else {
-        console.log(`linking ${event.user.user_id} under ${primary_sub}`);
+    if (!makePrimary) {
+        console.log(`linking ${token_sub} under ${event.user.user_id}`);
+    } else {
+        console.log(`linking ${event.user.user_id} under ${token_sub}`);
     }
 
-    const {ManagementClient, AuthenticationClient} = require('auth0');
+    const {
+        ManagementClient,
+        AuthenticationClient
+    } = require('auth0');
 
-    let {value: token} = api.cache.get('management-token') || {};
-    const {domain, clientId, clientSecret} = event.secrets || {};
+    let {
+        value: token
+    } = api.cache.get('management-token') || {};
+    const {
+        domain,
+        clientId,
+        clientSecret
+    } = event.secrets || {};
     if (!token) {
 
-        const cc = new AuthenticationClient({domain, clientId, clientSecret});
+        const cc = new AuthenticationClient({
+            domain,
+            clientId,
+            clientSecret
+        });
 
         try {
-            const {data} = await cc.oauth.clientCredentialsGrant({scope: `update:users read:users`, audience: `https://${domain}/api/v2/`});
+            const {
+                data
+            } = await cc.oauth.clientCredentialsGrant({
+                scope: `update:users read:users`,
+                audience: `https://${domain}/api/v2/`
+            });
 
             token = data?.access_token;
 
@@ -161,7 +210,9 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
             }
             console.log('cache MIS m2m token!');
 
-            const result = api.cache.set('management-token', token, {ttl: data.expires_in * 1000});
+            const result = api.cache.set('management-token', token, {
+                ttl: data.expires_in * 1000
+            });
 
             if (result?.type === 'error') {
                 console.log('failed to set the token in the cache with error code', result.code);
@@ -172,15 +223,22 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
         }
     }
 
-    const client = new ManagementClient({domain, token});
+    const client = new ManagementClient({
+        domain,
+        token
+    });
 
-    if (linkDetails.target_primary=='false') {
-        const provider = linkDetails.target_provider;
-        const user_id = primary_sub;
+    if (!makePrimary) {
+        const user_id = token_sub;
 
         try {
-            await client.users.link({id: event.user.user_id}, {user_id, provider});
-            console.log(`link successful ${primary_sub} to ${event.user.user_id}`);
+            await client.users.link({
+                id: event.user.user_id
+            }, {
+                user_id,
+                token_provider
+            });
+            console.log(`link successful ${token_sub} to ${event.user.user_id}`);
         } catch (err) {
             console.log(`unable to link, no changes. error: ${JSON.stringify(err)}`);
             return;
@@ -188,103 +246,110 @@ async function linkAndMakePrimary(event, api, primary_sub, linkDetails) {
 
         api.authentication.setPrimaryUser(event.user.user_id);
 
-        console.log(`changed primary from  ${primary_sub}to ${event.user.user_id}`);
+        console.log(`changed primary from  ${token_sub}to ${event.user.user_id}`);
     } else {
 
-        const {user_id, provider} = event.user.identities[0];
+        const {
+            user_id,
+            provider
+        } = event.user.identities[0];
 
         try {
-            await client.users.link({id: primary_sub}, {user_id, provider});
-            console.log(`link successful ${primary_sub} to ${user_id} of provider: ${provider}`);
+            await client.users.link({
+                id: token_sub
+            }, {
+                user_id,
+                provider
+            });
+            console.log(`link successful ${token_sub} to ${user_id} of provider: ${provider}`);
         } catch (err) {
             console.log(`unable to link, no changes. error: ${JSON.stringify(err)}`);
             return;
         }
 
-        api.authentication.setPrimaryUser(primary_sub);
+        api.authentication.setPrimaryUser(token_sub);
 
-        console.log(`changed primary from ${event.user.user_id} to ${primary_sub}`);
+        console.log(`changed primary from ${event.user.user_id} to ${token_sub}`);
     }
 }
 
 exports.onExecutePostLogin = async (event, api) => {
 
-  const protocol = event?.transaction?.protocol || 'unknown';
 
-  if (!interactive_login.test(protocol)) {
-      return;
-  }
+    const protocol = event?.transaction?.protocol || 'unknown';
 
-  if(event.stats.logins_count > 1) {
-    console.log("skipping as not the first login");
-    return;
-  }
+    if (!interactive_login.test(protocol)) {
+        return;
+    }
 
-  if(event.request.query.linking) {
-    console.log("skipping as already in linking");
-    return;
-  }
+    if (event.stats.logins_count > 1) {
+        console.log("skipping as not the first login");
+        return;
+    }
 
-  var existingUsers = await checkForExistingAccount(event, api, event.user.email);
-  existingUsers = existingUsers.data;
-  existingUsers = existingUsers.filter((t) => t.user_id !=  event.user.user_id );
+    if (event.request.query.account_linking) {
+        console.log("skipping as already in linking");
+        return;
+    }
 
-  // remove the current user
-  if (existingUsers.length > 0) {
+    var existingUsers = await checkForExistingAccount(event, api, event.user.email);
+    existingUsers = existingUsers.data;
+    existingUsers = existingUsers.filter((t) => t.user_id != event.user.user_id);
 
-    const crypto = require('crypto');
-    const codeVerifier = crypto
-    .randomBytes(60)
-    .toString('hex')
-    .slice(0, 128);
-    const codeChallenge = crypto
-    .createHash('sha256')
-    .update(Buffer.from(codeVerifier))
-    .digest('base64')
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    // remove the current user
+    if (existingUsers.length > 0) {
 
-    api.prompt.render(FORM_ID, {
-        vars: {
-            target_user_id: existingUsers[0].user_id,
-            target_username: existingUsers[0].username || existingUsers[0].email || existingUsers[0].phone_number,
-            target_connection: existingUsers[0].identities[0].connection,
-            target_provider: existingUsers[0].identities[0].provider,
-            code_challenge: codeChallenge,
-            code_verifier: codeVerifier,
-            target_primary: 'true',
-            nonce: event.transaction.id
-        }
-    });
-  } else {
-    console.log("No matching users - no account linking");
-  }
+        const crypto = require('crypto');
+        const codeVerifier = crypto
+            .randomBytes(60)
+            .toString('hex')
+            .slice(0, 128);
+        const codeChallenge = crypto
+            .createHash('sha256')
+            .update(Buffer.from(codeVerifier))
+            .digest('base64')
+            .replace(/=/g, '')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_');
+
+        api.prompt.render(FORM_ID, {
+            vars: {
+                matching_accounts: existingUsers,
+                code_challenge: codeChallenge,
+                code_verifier: codeVerifier,
+                target_primary: true,
+                nonce: event.transaction.id
+            }
+        });
+    } else {
+        console.log("No matching users - no account linking");
+    }
 }
 
 exports.onContinuePostLogin = async (event, api) => {
-  console.log(`onContinuePostLogin event: ${JSON.stringify(event)}`);
+    console.log(`onContinuePostLogin event: ${JSON.stringify(event)}`);
 
-    if(event.prompt.vars.code) {
+    if (event.prompt.vars.code) {
 
-    const id_token = await exchangeAndVerify(api, event?.secrets?.domain, event.request?.hostname, event.client.client_id, event.prompt.vars.code_verifier, event.prompt.vars.redirect_uri, event.prompt.vars.code, event.transaction.id);
+        const id_token = await exchangeAndVerify(api, event?.secrets?.domain, event.request?.hostname, event.client.client_id, event.prompt.vars.code_verifier, event.prompt.vars.redirect_uri, event.prompt.vars.code, event.transaction.id);
+        const id_token_provider = id_token.sub.substring(0, id_token.sub.indexOf("|"));
+        console.log(id_token_provider);
+        if (id_token.email_verified !== true && id_token_provider !== "sms") {
+            console.log(`skipped linking, email not verified in nested tx user: ${id_token.email}`);
+            return;
+        }
 
-    if (id_token.email_verified !== true && event.prompt.vars.target_connection !== "sms") {
-        console.log(`skipped linking, email not verified in nested tx user: ${id_token.email}`);
-        return;
-    }
-
-    if (!database_sub.test(id_token.sub)) {
-        api.access.deny(`invalid sub from inner tx: ${id_token.sub}`);
-        return;
-    }
+        if (!database_sub.test(id_token.sub)) {
+            api.access.deny(`invalid sub from inner tx: ${id_token.sub}`);
+            return;
+        }
 
 
-    if (event.user.email !== id_token.email && event.prompt.vars.target_primary=='true') {
-        api.access.deny('emails do not match');
-        return;
-    }
+        if (event.user.email !== id_token.email && event.prompt.vars.target_primary) {
+            api.access.deny('emails do not match');
+            return;
+        }
 
-    await linkAndMakePrimary(event, api, id_token.sub, event.prompt.vars);
+        await linkAndMakePrimary(event, api, id_token.sub, id_token_provider, event.prompt.vars.target_primary);
     }
 }

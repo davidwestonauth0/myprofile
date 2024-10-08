@@ -13,12 +13,21 @@
     },
     "translations": {},
     "start": {
-      "nextNode": "flow_zeMp",
+      "nextNode": "router_RRgU",
       "coordinates": {
-        "x": -79,
-        "y": -90
+        "x": -80,
+        "y": 42
       },
-      "hiddenFields": []
+      "hiddenFields": [
+        {
+          "key": "code",
+          "value": null
+        },
+        {
+          "key": "state",
+          "value": null
+        }
+      ]
     },
     "nodes": [
       {
@@ -26,23 +35,36 @@
         "type": "STEP",
         "alias": "New step",
         "config": {
-          "nextNode": "flow_AC6S",
+          "nextNode": null,
           "components": [
             {
               "id": "rich_text_YYP6",
               "type": "RICH_TEXT",
               "config": {
-                "content": "<h2>Link your existing account?</h2><p>We found an existing account with {{context.user.email}}</p><p>Would you like to link the account to keep your existing order history?</p>"
+                "content": "<h2>Link your existing account?</h2><p>We found existing account(s) with {{context.user.email}}.</p><p></p><p>Would you like to link the account to keep your existing order history?</p><p></p><p>You will be prompted to authenticate with the selected account to verify the account linking.</p>"
               },
               "category": "BLOCK"
             },
             {
-              "id": "next_button_aAUy",
-              "type": "NEXT_BUTTON",
+              "id": "custom_lPld",
+              "hint": null,
+              "type": "CUSTOM",
+              "label": null,
               "config": {
-                "text": "Link my account"
+                "css": null,
+                "code": "function loginOptions(context) {\n  const CONTAINER_CLASS = 'af-accountLinkingOptions';\n\n  const container = document.createElement('div');\n  container.classList.add(CONTAINER_CLASS);\n\n  function buildAuthorizeUrl(hostname, client_id, code_challenge, nonce, connection, email) {\n    console.log(hostname);\n    console.log(client_id);\n\n    const BASE_URL = 'https://'+hostname;\n    const AUTHORIZE_PATH = '/authorize';\n\n    const AUTHORIZE_URL = new URL(AUTHORIZE_PATH, BASE_URL);\n    AUTHORIZE_URL.searchParams.append('connection', connection);\n    AUTHORIZE_URL.searchParams.append('login_hint', email);\n    AUTHORIZE_URL.searchParams.append('screen_hint', 'login');\n    AUTHORIZE_URL.searchParams.append('client_id', client_id);\n    AUTHORIZE_URL.searchParams.append('response_type', 'code');\n    AUTHORIZE_URL.searchParams.append('response_mode', 'query');\n    AUTHORIZE_URL.searchParams.append('prompt', 'login');\n    AUTHORIZE_URL.searchParams.append('nonce', nonce);\n    AUTHORIZE_URL.searchParams.append('account_linking', 'true');\n    AUTHORIZE_URL.searchParams.append('scope', 'openid profile email');\n    AUTHORIZE_URL.searchParams.append('redirect_uri', window.location.href);\n\t\tAUTHORIZE_URL.searchParams.append('code_challenge_method', 'S256');\n    AUTHORIZE_URL.searchParams.append('code_challenge', code_challenge);\n\t\t\n\n    return AUTHORIZE_URL.href;\n  }\n\n  function buildButton(href, text) {\n    const button = document.createElement('button');\n    button.classList.add('af-button', 'af-nextButton', 'af-customButton');\n    button.onclick= function() { location.href=href; }\n    button.innerText = `Continue with ${text}`;\n\n    return button;\n  }\n\n  function buildLoginOptions(hostname, client_id, code_challenge, nonce, matching_accounts) {\n    // @todo: generate options dynamically\n    const ALLOWED_LOGIN_OPTIONS = matching_accounts;\n  \n    ALLOWED_LOGIN_OPTIONS.forEach((option) => {\n      const href = buildAuthorizeUrl(hostname, client_id, code_challenge, nonce, option.identities[0].connection, option.email);\n      \nlet x = option.identities[0].connection;\nvar text;\nswitch (x) {\n\tcase \"Username-Password-Authentication\":\n\ttext = \"password\";\n\tbreak;\n\tcase \"email\":\n\t\ttext = \"OTP via email\";\n\t\tbreak;\n\tcase \"sms\":\n\t\ttext = \"OTP via phone\";\n\t\tbreak;\n\tcase \"facebook\":\n\t\ttext = \"Facebook\";\n\t\tbreak;\n\tcase \"apple\":\n\t\ttext = \"Apple\";\n\t\tbreak;\n\tcase \"google-oauth2\":\n\t\ttext = \"Google\";\n\t\tbreak;\n\tdefault:\n\t\ttext = \"password\";\n}\n      \n      const button = buildButton(href, text);\n  \n      container.appendChild(button);\n    });\n  }\n\n\n  return {\n    init() {\n      \n      const config = context.custom.getParams();\n  \t\tconst { hostname, client_id, code_challenge, nonce, matching_accounts } = config;\n      buildLoginOptions(hostname, client_id, code_challenge, nonce, matching_accounts);\n      return container;\n    },\n  };\n}",
+                "params": {
+                  "nonce": "{{vars.nonce}}",
+                  "hostname": "{{meta.navigation.location.hostname}}",
+                  "client_id": "{{context.client.client_id}}",
+                  "code_challenge": "{{vars.code_challenge}}",
+                  "matching_accounts": "{{vars.matching_accounts}}"
+                },
+                "schema": {}
               },
-              "category": "BLOCK"
+              "category": "FIELD",
+              "required": false,
+              "transient": false
             },
             {
               "id": "divider_iR0h",
@@ -72,90 +94,63 @@
         }
       },
       {
-        "id": "step_9cAO",
-        "type": "STEP",
-        "alias": "New step",
-        "config": {
-          "nextNode": "$ending",
-          "components": [
-            {
-              "id": "redirect",
-              "hint": null,
-              "type": "CUSTOM",
-              "label": null,
-              "config": {
-                "css": null,
-                "code": "/**\n * This custom field uses imask.js to mask an input with a currency symbol\n * Add \"symbol\" param using a value like \"€\" to see the difference\n */\nfunction GoPwTicket(context) {\n\n  const input = document.createElement('div');\n\n\n  \n\n  return {\n    /** Invoked once when the field is created */\n    init() {\n     window.location.replace(context.custom.getParams().auth_url); \n      return input;\n    },\n\n    /** Returns a list of URLs that the SDK guarantees that will loaded before init() is invoked */\n\n\n    /** Invoked when field has to be blocked */\n\n\n    /** Invoked when the SDK needs to get the value (possibly several times) */\n    getValue() {\n      return {\n        value: input.value\n      };\n    },\n  };\n}",
-                "params": {
-                  "auth_url": "{{vars.auth_url}}"
-                },
-                "schema": {}
-              },
-              "category": "FIELD",
-              "required": false,
-              "transient": false
-            }
-          ]
-        },
-        "coordinates": {
-          "x": 1840,
-          "y": -40
-        }
-      },
-      {
-        "id": "flow_AC6S",
-        "type": "FLOW",
-        "alias": "setAuthUrl",
-        "config": {
-          "flowId": "#FLOW-1#",
-          "nextNode": "step_9cAO"
-        },
-        "coordinates": {
-          "x": 1363,
-          "y": 525
-        }
-      },
-      {
         "id": "router_RRgU",
         "type": "ROUTER",
-        "alias": "inAccountLinking",
+        "alias": "InAccountLinking",
         "config": {
           "rules": [
             {
               "id": "id_6098372030682",
               "alias": "LinkInProgress",
-              "nextNode": "$ending",
+              "nextNode": "flow_zeMp",
               "condition": {
                 "operands": [
                   {
                     "operands": [
-                      "{{vars.code}}"
+                      "{{fields.code}}"
                     ],
                     "operator": "HAS_VALUE"
                   }
                 ],
                 "operator": "AND"
               }
+            },
+            {
+              "id": "id_5932907032988",
+              "alias": "HasMatchingAccounts",
+              "nextNode": "step_nndF",
+              "condition": {
+                "operands": [
+                  {
+                    "operands": [
+                      "{{ functions.length('{{vars.matching_accounts}}') }}",
+                      "0"
+                    ],
+                    "operator": "GT"
+                  }
+                ],
+                "operator": "AND"
+              }
             }
           ],
-          "fallback": "step_nndF"
+          "fallback": "$ending"
         },
         "coordinates": {
-          "x": 513,
-          "y": 159
+          "x": 192,
+          "y": 64
         }
       },
       {
         "id": "flow_zeMp",
         "type": "FLOW",
-        "alias": "setCode",
+        "alias": "SetAuthCode",
         "config": {
-          "flowId": "#FLOW-2#",
-          "nextNode": "router_RRgU"
+          "flowId": "#FLOW-1#",
+          "nextNode": "$ending"
         },
         "coordinates": {
-          "x": 135,
-          "y": 142
+          "x": 671,
+          "y": 389
         }
       }
     ],
@@ -168,8 +163,8 @@
         "flowId": null
       },
       "coordinates": {
-        "x": 1912,
-        "y": 552
+        "x": 1447,
+        "y": 331
       },
       "resumeFlow": true
     },
@@ -183,41 +178,11 @@
   },
   "flows": {
     "#FLOW-1#": {
-      "name": "setAuthUrl",
+      "name": "SetAuthCode",
       "description": null,
       "actions": [
         {
-          "id": "store_shared_variable_xYbr",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "STORE_STATE",
-          "params": {
-            "data": {
-              "auth_url": "https://{{meta.navigation.location.hostname}}/authorize?client_id={{context.client.client_id}}&redirect_uri={{meta.navigation.location.href}}&nonce={{vars.nonce}}&response_type=code&prompt=login&linking=true&code_challenge={{vars.code_challenge}}&code_challenge_method=S256&connection={{vars.target_connection}}&login_hint={{vars.target_username}}&scope=openid%20profile%20email&response_mode=query"
-            }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-2#": {
-      "name": "setCode",
-      "description": null,
-      "actions": [
-        {
-          "id": "setCode",
+          "id": "SetAuthCode",
           "type": "FLOW",
           "alias": null,
           "notes": null,
