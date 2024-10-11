@@ -1499,6 +1499,289 @@
         "rateLimits": []
       }
     },
+    "#FLOW-4#": {
+      "name": "Generate OTP & send email",
+      "description": null,
+      "actions": [
+        {
+          "id": "verifyemail",
+          "type": "EMAIL",
+          "alias": null,
+          "notes": null,
+          "action": "VERIFY_EMAIL",
+          "params": {
+            "email": "{{fields.newemail}}",
+            "rules": {
+              "allowlist": [],
+              "blocklist": [],
+              "blockAliases": true,
+              "blockFreeEmails": true,
+              "requireMXRecord": true,
+              "blockDisposableEmails": true
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_O5WH",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "generate_otp",
+                "type": "OTP",
+                "alias": null,
+                "notes": null,
+                "action": "GENERATE_CODE",
+                "params": {
+                  "length": 6,
+                  "reference": "{{fields.newemail}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              },
+              {
+                "id": "sendtorequestbin",
+                "type": "HTTP",
+                "alias": null,
+                "notes": null,
+                "action": "SEND_REQUEST",
+                "params": {
+                  "url": "https://eoq93i7z3xldmn5.m.pipedream.net",
+                  "body": {
+                    "otp": "{{actions.generate_otp.code}}"
+                  },
+                  "type": "JSON",
+                  "basic": null,
+                  "method": "POST",
+                  "params": {},
+                  "headers": {},
+                  "acceptNOK": false,
+                  "connectionId": null
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              },
+              {
+                "id": "if_then_condition_GdL9",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "BOOLEAN_CONDITION",
+                "params": {
+                  "then": [],
+                  "evaluate": {
+                    "operands": [
+                      {
+                        "operands": [
+                          {
+                            "operands": [
+                              "{{actions.sendtorequestbin.status}}",
+                              "200"
+                            ],
+                            "operator": "EQ"
+                          },
+                          {
+                            "operands": [
+                              "{{actions.sendtorequestbin.status}}",
+                              "400"
+                            ],
+                            "operator": "EQ"
+                          }
+                        ],
+                        "operator": "OR"
+                      }
+                    ],
+                    "operator": "AND"
+                  },
+                  "otherwise": [
+                    {
+                      "id": "show_error_message_9aTF",
+                      "type": "FLOW",
+                      "alias": null,
+                      "notes": null,
+                      "action": "ERROR_MESSAGE",
+                      "params": {
+                        "message": "Error sending OTP"
+                      },
+                      "maskOutput": false,
+                      "allowFailure": false
+                    }
+                  ]
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{verifyemail.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "notPermittedEmail",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "New email address is not allowed"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
+    "#FLOW-5#": {
+      "name": "Verify OTP & Update user",
+      "description": null,
+      "actions": [
+        {
+          "id": "verify_otp",
+          "type": "OTP",
+          "alias": null,
+          "notes": null,
+          "action": "VERIFY_CODE",
+          "params": {
+            "code": "{{fields.otp}}",
+            "reference": "{{fields.newemail}}"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_mnXT",
+          "type": "FLOW",
+          "alias": "Is it valid?",
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "updateUserEmail",
+                "type": "AUTH0",
+                "alias": null,
+                "notes": null,
+                "action": "UPDATE_USER",
+                "params": {
+                  "userId": "{{context.user.user_id}}",
+                  "changes": {
+                    "email": "{{fields.newemail}}",
+                    "email_verified": true
+                  },
+                  "connectionId": "#CONN-1#"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              },
+              {
+                "id": "if_then_condition_RMPC",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "BOOLEAN_CONDITION",
+                "params": {
+                  "then": [],
+                  "evaluate": {
+                    "operands": [
+                      {
+                        "operands": [
+                          "{{actions.updateUserEmail.status}}",
+                          "200"
+                        ],
+                        "operator": "EQ"
+                      }
+                    ],
+                    "operator": "AND"
+                  },
+                  "otherwise": [
+                    {
+                      "id": "show_error_message_Wm3i",
+                      "type": "FLOW",
+                      "alias": null,
+                      "notes": null,
+                      "action": "ERROR_MESSAGE",
+                      "params": {
+                        "message": "{{actions.updateUserEmail.body.message}}"
+                      },
+                      "maskOutput": false,
+                      "allowFailure": false
+                    }
+                  ]
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.verify_otp.valid}}",
+                    true
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_Whan",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "We're sorry, your verification code is not valid. Please, review it and try it again."
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
     "#FLOW-6#": {
       "name": "Check phone & generate OTP",
       "description": null,
@@ -1738,7 +2021,7 @@
             "body": {
               "ttl_sec": 0,
               "user_id": "{{context.user.user_id}}",
-              "client_id": "CUoPZqhRVJuhRFBURD8KGoHt7yL3UAmv"
+              "client_id": "{{context.client.client_id}}"
             },
             "type": "JSON",
             "basic": null,
@@ -1818,6 +2101,101 @@
         "rateLimits": []
       }
     },
+    "#FLOW-9#": {
+      "name": "GetMFATicket",
+      "description": null,
+      "actions": [
+        {
+          "id": "GetMFATicket",
+          "type": "HTTP",
+          "alias": null,
+          "notes": null,
+          "action": "SEND_REQUEST",
+          "params": {
+            "url": "{{vars.auth0_domain}}/api/v2/guardian/enrollments/ticket",
+            "body": {
+              "user_id": "{{context.user.user_id}}",
+              "send_mail": false,
+              "allow_multiple_enrollments": true
+            },
+            "type": "JSON",
+            "basic": null,
+            "method": "POST",
+            "params": {},
+            "headers": {
+              "Authorization": "Bearer {{vars.mgmt_token}}"
+            },
+            "acceptNOK": false,
+            "connectionId": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_BChX",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "SetMFATicket",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.GetMFATicket.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_vbqf",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.GetMFATicket.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
     "#FLOW-10#": {
       "name": "updateUser",
       "description": null,
@@ -1831,6 +2209,7 @@
           "params": {
             "userId": "{{context.user.user_id}}",
             "changes": {
+              "name": "{{fields.firstName}} {{fields.surname}}",
               "user_metadata": {
                 "surname": "{{fields.surname}}",
                 "givenName": "{{fields.firstName}}"
@@ -1977,223 +2356,6 @@
                 "allowFailure": false
               }
             ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-9#": {
-      "name": "GetMFATicket",
-      "description": null,
-      "actions": [
-        {
-          "id": "GetMFATicket",
-          "type": "HTTP",
-          "alias": null,
-          "notes": null,
-          "action": "SEND_REQUEST",
-          "params": {
-            "url": "{{vars.auth0_domain}}/api/v2/guardian/enrollments/ticket",
-            "body": {
-              "user_id": "{{context.user.user_id}}",
-              "send_mail": false,
-              "allow_multiple_enrollments": true
-            },
-            "type": "JSON",
-            "basic": null,
-            "method": "POST",
-            "params": {},
-            "headers": {
-              "Authorization": "Bearer {{vars.mgmt_token}}"
-            },
-            "acceptNOK": false,
-            "connectionId": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_BChX",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "SetMFATicket",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "STORE_STATE",
-                "params": {
-                  "data": {
-                    "mfaticket": "{{actions.GetMFATicket.body.ticket_url}}"
-                  }
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.GetMFATicket.status}}",
-                    "200"
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "show_error_message_vbqf",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "{{actions.GetMFATicket.body.message}}"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-14#": {
-      "name": "startLinking",
-      "description": null,
-      "actions": [
-        {
-          "id": "connectionName",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "MAP_VALUE",
-          "params": {
-            "cases": {
-              "Apple": "apple",
-              "Auth0": "Username-Password-Authentication",
-              "Google": "google-oauth2",
-              "Facebook": "facebook",
-              "SMS Passwordless": "sms",
-              "Email Passwordless": "email"
-            },
-            "value": "{{fields.linkAccountChoice}}",
-            "default": "google-oauth2"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "providerName",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "MAP_VALUE",
-          "params": {
-            "cases": {
-              "Apple": "apple",
-              "Auth0": "auth0",
-              "Google": "google-oauth2",
-              "Facebook": "facebook",
-              "SMS Passwordless": "sms",
-              "Email Passwordless": "email"
-            },
-            "value": "{{fields.linkAccountChoice}}",
-            "default": "google-oauth2"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "loginHintMapping",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "MAP_VALUE",
-          "params": {
-            "cases": {
-              "Auth0": "{{context.user.email}}",
-              "SMS Passwordless": "{{context.user.phone_number}}",
-              "Email Passwordless": "{{context.user.email}}"
-            },
-            "value": "{{fields.linkAccountChoice}}",
-            "default": null
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "setLinkingVars",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "STORE_STATE",
-          "params": {
-            "data": {
-              "target_primary": "false",
-              "target_user_id": "{{context.user.user_id}}",
-              "target_provider": "{{actions.providerName.result}}",
-              "target_username": "{{actions.loginHintMapping.result}}",
-              "target_connection": "{{actions.connectionName.result}}"
-            }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "store_shared_variable_fmAB",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "STORE_STATE",
-          "params": {
-            "data": {
-              "redirect": "{{meta.navigation.location.href}}%26target_primary=false%26target_connection={{vars.target_connection}}%26target_provider={{vars.target_provider}}%26target_username={{vars.target_username}}"
-            }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "store_shared_variable_OBQH",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "STORE_STATE",
-          "params": {
-            "data": {
-              "auth_url": "https://{{meta.navigation.location.hostname}}/authorize?client_id={{context.client.client_id}}&redirect_uri={{vars.redirect}}&nonce={{vars.nonce}}&response_type=code&prompt=login&linking=true&code_challenge={{vars.code_challenge}}&code_challenge_method=S256&connection={{actions.connectionName.result}}&login_hint={{actions.loginHintMapping.result}}&scope=openid%20profile%20email&response_mode=query\n"
-            }
           },
           "maskOutput": false,
           "allowFailure": false
@@ -2381,6 +2543,128 @@
         "rateLimits": []
       }
     },
+    "#FLOW-14#": {
+      "name": "startLinking",
+      "description": null,
+      "actions": [
+        {
+          "id": "connectionName",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "MAP_VALUE",
+          "params": {
+            "cases": {
+              "Apple": "apple",
+              "Auth0": "Username-Password-Authentication",
+              "Google": "google-oauth2",
+              "Facebook": "facebook",
+              "SMS Passwordless": "sms",
+              "Email Passwordless": "email"
+            },
+            "value": "{{fields.linkAccountChoice}}",
+            "default": "google-oauth2"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "providerName",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "MAP_VALUE",
+          "params": {
+            "cases": {
+              "Apple": "apple",
+              "Auth0": "auth0",
+              "Google": "google-oauth2",
+              "Facebook": "facebook",
+              "SMS Passwordless": "sms",
+              "Email Passwordless": "email"
+            },
+            "value": "{{fields.linkAccountChoice}}",
+            "default": "google-oauth2"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "loginHintMapping",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "MAP_VALUE",
+          "params": {
+            "cases": {
+              "Auth0": "{{context.user.email}}",
+              "SMS Passwordless": "{{context.user.phone_number}}",
+              "Email Passwordless": "{{context.user.email}}"
+            },
+            "value": "{{fields.linkAccountChoice}}",
+            "default": null
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "setLinkingVars",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "target_primary": "false",
+              "target_user_id": "{{context.user.user_id}}",
+              "target_provider": "{{actions.providerName.result}}",
+              "target_username": "{{actions.loginHintMapping.result}}",
+              "target_connection": "{{actions.connectionName.result}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "store_shared_variable_fmAB",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "redirect": "{{meta.navigation.location.href}}%26target_primary=false%26target_connection={{vars.target_connection}}%26target_provider={{vars.target_provider}}%26target_username={{vars.target_username}}"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "store_shared_variable_OBQH",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "STORE_STATE",
+          "params": {
+            "data": {
+              "auth_url": "https://{{meta.navigation.location.hostname}}/authorize?client_id={{context.client.client_id}}&redirect_uri={{vars.redirect}}&nonce={{vars.nonce}}&response_type=code&prompt=login&linking=true&code_challenge={{vars.code_challenge}}&code_challenge_method=S256&connection={{actions.connectionName.result}}&login_hint={{actions.loginHintMapping.result}}&scope=openid%20profile%20email&response_mode=query\n"
+            }
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
     "#FLOW-15#": {
       "name": "UnlinkAccount",
       "description": null,
@@ -2449,88 +2733,6 @@
                 "action": "ERROR_MESSAGE",
                 "params": {
                   "message": "{{actions.unlinkAccount.body.message}}"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-16#": {
-      "name": "GetUser",
-      "description": null,
-      "actions": [
-        {
-          "id": "getUser",
-          "type": "AUTH0",
-          "alias": null,
-          "notes": null,
-          "action": "GET_USER",
-          "params": {
-            "userId": "{{context.user.user_id}}",
-            "connectionId": "#CONN-1#"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_dXZu",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "store_shared_variable_Ehkz",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "STORE_STATE",
-                "params": {
-                  "data": {
-                    "user": "{{actions.getUser.body}}"
-                  }
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.getUser.status}}",
-                    "200"
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "show_error_message_v8Aq",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "{{actions.getUser.body.message}}"
                 },
                 "maskOutput": false,
                 "allowFailure": false
@@ -2641,6 +2843,88 @@
         "rateLimits": []
       }
     },
+    "#FLOW-16#": {
+      "name": "GetUser",
+      "description": null,
+      "actions": [
+        {
+          "id": "getUser",
+          "type": "AUTH0",
+          "alias": null,
+          "notes": null,
+          "action": "GET_USER",
+          "params": {
+            "userId": "{{context.user.user_id}}",
+            "connectionId": "#CONN-1#"
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        },
+        {
+          "id": "if_then_condition_dXZu",
+          "type": "FLOW",
+          "alias": null,
+          "notes": null,
+          "action": "BOOLEAN_CONDITION",
+          "params": {
+            "then": [
+              {
+                "id": "store_shared_variable_Ehkz",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "STORE_STATE",
+                "params": {
+                  "data": {
+                    "user": "{{actions.getUser.body}}"
+                  }
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ],
+            "evaluate": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{actions.getUser.status}}",
+                    "200"
+                  ],
+                  "operator": "EQ"
+                }
+              ],
+              "operator": "AND"
+            },
+            "otherwise": [
+              {
+                "id": "show_error_message_v8Aq",
+                "type": "FLOW",
+                "alias": null,
+                "notes": null,
+                "action": "ERROR_MESSAGE",
+                "params": {
+                  "message": "{{actions.getUser.body.message}}"
+                },
+                "maskOutput": false,
+                "allowFailure": false
+              }
+            ]
+          },
+          "maskOutput": false,
+          "allowFailure": false
+        }
+      ],
+      "triggers": {
+        "webhook": {
+          "secret": null,
+          "enabled": false
+        }
+      },
+      "synchronous": true,
+      "security": {
+        "rateLimits": []
+      }
+    },
     "#FLOW-18#": {
       "name": "setCodeTwo",
       "description": null,
@@ -2661,289 +2945,6 @@
               "target_username": "{{meta.navigation.location.searchParams.target_username}}",
               "target_connection": "{{meta.navigation.location.searchParams.target_connection}}"
             }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-5#": {
-      "name": "Verify OTP & Update user",
-      "description": null,
-      "actions": [
-        {
-          "id": "verify_otp",
-          "type": "OTP",
-          "alias": null,
-          "notes": null,
-          "action": "VERIFY_CODE",
-          "params": {
-            "code": "{{fields.otp}}",
-            "reference": "{{fields.newemail}}"
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_mnXT",
-          "type": "FLOW",
-          "alias": "Is it valid?",
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "updateUserEmail",
-                "type": "AUTH0",
-                "alias": null,
-                "notes": null,
-                "action": "UPDATE_USER",
-                "params": {
-                  "userId": "{{context.user.user_id}}",
-                  "changes": {
-                    "email": "{{fields.newemail}}",
-                    "email_verified": true
-                  },
-                  "connectionId": "#CONN-1#"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              },
-              {
-                "id": "if_then_condition_RMPC",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "BOOLEAN_CONDITION",
-                "params": {
-                  "then": [],
-                  "evaluate": {
-                    "operands": [
-                      {
-                        "operands": [
-                          "{{actions.updateUserEmail.status}}",
-                          "200"
-                        ],
-                        "operator": "EQ"
-                      }
-                    ],
-                    "operator": "AND"
-                  },
-                  "otherwise": [
-                    {
-                      "id": "show_error_message_Wm3i",
-                      "type": "FLOW",
-                      "alias": null,
-                      "notes": null,
-                      "action": "ERROR_MESSAGE",
-                      "params": {
-                        "message": "{{actions.updateUserEmail.body.message}}"
-                      },
-                      "maskOutput": false,
-                      "allowFailure": false
-                    }
-                  ]
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{actions.verify_otp.valid}}",
-                    true
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "show_error_message_Whan",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "We're sorry, your verification code is not valid. Please, review it and try it again."
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        }
-      ],
-      "triggers": {
-        "webhook": {
-          "secret": null,
-          "enabled": false
-        }
-      },
-      "synchronous": true,
-      "security": {
-        "rateLimits": []
-      }
-    },
-    "#FLOW-4#": {
-      "name": "Generate OTP & send email",
-      "description": null,
-      "actions": [
-        {
-          "id": "verifyemail",
-          "type": "EMAIL",
-          "alias": null,
-          "notes": null,
-          "action": "VERIFY_EMAIL",
-          "params": {
-            "email": "{{fields.newemail}}",
-            "rules": {
-              "allowlist": [],
-              "blocklist": [],
-              "blockAliases": true,
-              "blockFreeEmails": true,
-              "requireMXRecord": true,
-              "blockDisposableEmails": true
-            }
-          },
-          "maskOutput": false,
-          "allowFailure": false
-        },
-        {
-          "id": "if_then_condition_O5WH",
-          "type": "FLOW",
-          "alias": null,
-          "notes": null,
-          "action": "BOOLEAN_CONDITION",
-          "params": {
-            "then": [
-              {
-                "id": "generate_otp",
-                "type": "OTP",
-                "alias": null,
-                "notes": null,
-                "action": "GENERATE_CODE",
-                "params": {
-                  "length": 6,
-                  "reference": "{{fields.newemail}}"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              },
-              {
-                "id": "sendtorequestbin",
-                "type": "HTTP",
-                "alias": null,
-                "notes": null,
-                "action": "SEND_REQUEST",
-                "params": {
-                  "url": "https://eoq93i7z3xldmn5.m.pipedream.net",
-                  "body": {
-                    "otp": "{{actions.generate_otp.code}}"
-                  },
-                  "type": "JSON",
-                  "basic": null,
-                  "method": "POST",
-                  "params": {},
-                  "headers": {},
-                  "acceptNOK": false,
-                  "connectionId": null
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              },
-              {
-                "id": "if_then_condition_GdL9",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "BOOLEAN_CONDITION",
-                "params": {
-                  "then": [],
-                  "evaluate": {
-                    "operands": [
-                      {
-                        "operands": [
-                          {
-                            "operands": [
-                              "{{actions.sendtorequestbin.status}}",
-                              "200"
-                            ],
-                            "operator": "EQ"
-                          },
-                          {
-                            "operands": [
-                              "{{actions.sendtorequestbin.status}}",
-                              "400"
-                            ],
-                            "operator": "EQ"
-                          }
-                        ],
-                        "operator": "OR"
-                      }
-                    ],
-                    "operator": "AND"
-                  },
-                  "otherwise": [
-                    {
-                      "id": "show_error_message_9aTF",
-                      "type": "FLOW",
-                      "alias": null,
-                      "notes": null,
-                      "action": "ERROR_MESSAGE",
-                      "params": {
-                        "message": "Error sending OTP"
-                      },
-                      "maskOutput": false,
-                      "allowFailure": false
-                    }
-                  ]
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ],
-            "evaluate": {
-              "operands": [
-                {
-                  "operands": [
-                    "{{verifyemail.status}}",
-                    "200"
-                  ],
-                  "operator": "EQ"
-                }
-              ],
-              "operator": "AND"
-            },
-            "otherwise": [
-              {
-                "id": "notPermittedEmail",
-                "type": "FLOW",
-                "alias": null,
-                "notes": null,
-                "action": "ERROR_MESSAGE",
-                "params": {
-                  "message": "New email address is not allowed"
-                },
-                "maskOutput": false,
-                "allowFailure": false
-              }
-            ]
           },
           "maskOutput": false,
           "allowFailure": false
