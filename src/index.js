@@ -22,7 +22,7 @@ const providerConfig = {
   domain: config.domain,
   clientId: config.clientId,
      useRefreshTokens:true,
-  cacheLocation:"memory",
+  cacheLocation:"localStorage",
   onRedirectCallback,
   authorizationParams: {
     redirect_uri: window.location.origin,
