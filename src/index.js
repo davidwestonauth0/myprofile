@@ -15,6 +15,7 @@ const onRedirectCallback = (appState) => {
 
 // Please see https://auth0.github.io/auth0-react/interfaces/Auth0ProviderOptions.html
 // for a full list of the available properties on the provider
+//test
 const config = getConfig();
 
 const providerConfig = {
