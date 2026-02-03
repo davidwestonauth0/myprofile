@@ -10,7 +10,7 @@ This sample demonstrates the following use cases:
 - [Protecting routes](https://github.com/auth0-samples/auth0-react-samples/blob/master/Sample-01/src/views/Profile.js#L33)
 - [Calling APIs](https://github.com/auth0-samples/auth0-react-samples/blob/master/Sample-01/src/views/ExternalApi.js)
 
-## Project setup
+## Project setupkk
 
 Use `yarn` to install the project dependencies:
 
