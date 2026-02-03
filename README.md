@@ -20,7 +20,7 @@ yarn install
 
 ## Configuration
 
-### Create an API
+### Create an APIk
 
 For the ["call an API"](https://auth0.com/docs/quickstart/spa/react/02-calling-an-api) page to work, you will need to [create an API](https://auth0.com/docs/apis) using the [management dashboard](https://manage.auth0.com/#/apis). This will give you an API identifier that you can use in the `audience` configuration field below.
 
